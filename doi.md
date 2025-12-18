@@ -18,6 +18,7 @@
 | tuanwei.xjtu.edu.cn | 团委 |  |  |
 | xsc.xjtu.edu.cn | 学生处 |  |  |
 | xxgk.xjtu.edu.cn | 信息公开网 |  |  |
+| oa.xjtu.edu.cn | OA平台 |  |  |
 
 ### 书院门户
 | 网址 | 内容 | 授权情况 | 解析方式 |

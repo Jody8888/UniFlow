@@ -13,6 +13,7 @@ ss.xjtu.edu.cn	学生成长支持系统
 tuanwei.xjtu.edu.cn 团委
 xsc.xjtu.edu.cn 学生处
 xxgk.xjtu.edu.cn	西交大信息公开网
+international.xjtu.edu.cn 国际交流处
 书院门户
 bjb.xjtu.edu.cn  钱学森学院
 cssy.xjtu.edu.cn  崇实书院

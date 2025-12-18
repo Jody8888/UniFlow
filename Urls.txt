@@ -17,3 +17,7 @@ ss.xjtu.edu.cn	学生成长支持系统
 wen.xjtu.edu.cn	文治书院																									
 xxgk.xjtu.edu.cn	西交大信息公开网																									
 zlsy.xjtu.edu.cn	宗濂书院																									
+tuanwei.xjtu.edu.cn 团委
+xsc.xjtu.edu.cn 学生处
+nanyang.xjtu.edu.cn 南洋书院
+lizhi.xjtu.edu.cn 励志书院

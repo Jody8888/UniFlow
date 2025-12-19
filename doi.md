@@ -16,16 +16,13 @@
 ### 书院门户
 | 网址 | 内容 | 授权情况 | 解析方式 |
 | ---- | ---- | ---- | ---- |
-| bjb.xjtu.edu.cn | 钱学森学院 |  |  |
-| cssy.xjtu.edu.cn | 崇实书院 |  |  |
-| cy.xjtu.edu.cn | 仲英书院 |  |  |
-| pksy.xjtu.edu.cn | 彭康书院 |  |  |
-| qdsy.xjtu.edu.cn | 启德书院 |  |  |
-| sfs.xjtu.edu.cn | 外国语学院 |  |  |
-| wen.xjtu.edu.cn | 文治书院 |  |  |
-| zlsy.xjtu.edu.cn | 宗濂书院 |  |  |
-| nanyang.xjtu.edu.cn | 南洋书院 |  |  |
-| lizhi.xjtu.edu.cn | 励志书院 |  |  |
+| [bjb.xjtu.edu.cn](https://bjb.xjtu.edu.cn/xydt/tzgg.htm) | 钱学森学院 |  |  |
+| [cy.xjtu.edu.cn](http://cy.xjtu.edu.cn/xwdt/tzgg.htm) | 仲英书院 |  |  |
+| [pksy.xjtu.edu.cn](https://pksy.xjtu.edu.cn/tzgg.htm) | 彭康书院 |  |  |
+| [sfs.xjtu.edu.cn](https://sfs.xjtu.edu.cn/glfw/tzgg.htm) | 外国语学院 | 这个其实没啥东西但是看到金秋外语节故保留 |  |
+| [zlsy.xjtu.edu.cn](https://zlsy.xjtu.edu.cn/tzgg.htm) | 宗濂书院 | 医学部，这个可以不做，但是考虑公用，所以保留 |  |
+| [nanyang.xjtu.edu.cn](https://nanyang.xjtu.edu.cn/xwtz/tzgg.htm) | 南洋书院 | 也没啥东西 但是有腾飞杯所以保留 |  |
+| [lizhi.xjtu.edu.cn](https://lizhi.xjtu.edu.cn/xwtz/tzgg.htm) | 励志书院 | 理由同上 |  |
 
 ### 活动
 | 网址 | 内容 |

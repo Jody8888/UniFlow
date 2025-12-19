@@ -33,3 +33,9 @@
 | zlsy.xjtu.edu.cn | 宗濂书院 |  |  |
 | nanyang.xjtu.edu.cn | 南洋书院 |  |  |
 | lizhi.xjtu.edu.cn | 励志书院 |  |  |
+
+### 活动
+| 网址 | 内容 |
+| ---- | ---- |
+|one.xjtu.edu.cn/EIP/nonlogin/queryLargeActivityList.htm?pageIndex=1&pageSize=10|校级活动|
+|ss.xjtu.edu.cn/xsfw/sys/swmsyxsfzapp/ykHdController/getActivityList.do|所有活动|

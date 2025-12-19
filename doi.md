@@ -6,18 +6,11 @@
 | ---- | ---- | ---- | ---- |
 | bw.xjtu.edu.cn | 保卫处 |  |  |
 | dean.xjtu.edu.cn | 教务处 |  |  |
-| jwc.xjtu.edu.cn | 教务处 |  |  |
-| gjh.xjtu.edu.cn | 本科劳育学习平台 |  |  |
-| hq.xjtu.edu.cn | 后勤保障部 |  |  |
-| ily.xjtu.edu.cn | 本科劳育学习平台 |  |  |
 | info.xjtu.edu.cn | 交大综合信息 |  |  |
-| jgdw.xjtu.edu.cn | 机关与直属单位党委 |  |  |
-| news.xjtu.edu.cn | 新闻网 |  |  |
 | nic.xjtu.edu.cn | 网络信息中心 |  |  |
-| ss.xjtu.edu.cn | 学生成长支持系统 |  |  |
 | tuanwei.xjtu.edu.cn | 团委 |  |  |
-| xsc.xjtu.edu.cn | 学生处 |  |  |
-| xxgk.xjtu.edu.cn | 信息公开网 |  |  |
+| pec.xjtu.edu.cn/cxcy/js.htm| 竞赛  |  |  |
+| pec.xjtu.edu.cn/cxcy/dcxm.htm | 大创比赛 |  |  |
 | oa.xjtu.edu.cn | OA平台 |  |  |
 
 ### 书院门户

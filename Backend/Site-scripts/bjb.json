@@ -2,8 +2,8 @@
     "Domain":"bjb.xjtu.edu.cn",
     "Url":"https://bjb.xjtu.edu.cn/xydt/tzgg.htm",
     "Type":"static" ,
-    "List":{
-        "Element":"ul",
+    "Index":{
+        "Container":"ul",
         "Class":"listg clearfix",
         "Entry":{
             "Date_of_Release":"date-list",

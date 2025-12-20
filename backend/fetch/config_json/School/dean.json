@@ -1,0 +1,21 @@
+{
+  "channel": "dean.xjtu.edu.cn",
+  "list": {
+    "url": "https://dean.xjtu.edu.cn/jxxx/jxtz2.htm",
+    "container_xpath": "//ul[contains(@class, 'list')]",
+    "item_xpath": ".//li//a",
+    "title": {
+      "fallback": "text"
+    },
+    "link": {
+      "source": "href"
+    }
+  },
+  "detail": {
+    "content_xpath": "//div[contains(@class, 'v_news_content')]",
+    "content_type": "html"
+  },
+  "limits": {
+    "max_items": 20
+  }
+}

@@ -1,0 +1,29 @@
+{
+    "Domain":"dean.xjtu.edu.cn",
+    "Url":"dean.xjtu.edu.cn/jxxx/jxtz2.htm",
+    "Type":"static" ,
+    "Index":{
+        "Container":"ul",
+        "Class":"wow fadeInUp list animated animated",
+        "Entry":{
+            "Container":"li",
+            "Class":"line_u12_%d",
+            "Date_of_Release":{
+                "Container":"span",
+                "Class":""
+            },
+            "link":"a"
+        }
+    },
+    "Entry_Content":{
+        "Format":"html",
+        "Content":{
+            "Container":"div",
+            "Class":"v_news_content"
+        },        
+        "Appendix":{
+            "Container":"ul",
+            "Style":"list-style-type:none;"
+        }
+    }
+}

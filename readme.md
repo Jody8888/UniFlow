@@ -1,6 +1,6 @@
-# !MERGAED to readme.md!
- Domains of interest
-## And how to deal with them
+# UniFlow: A campus info gathering and feeding platform
+
+## Domains of interest And how to deal with them
 
 ### 学校官方
 | 网址 | 内容 | 授权情况 | 解析方式 |
@@ -30,3 +30,16 @@
 | ---- | ---- |
 |one.xjtu.edu.cn/EIP/nonlogin/queryLargeActivityList.htm?pageIndex=1&pageSize=10|校级活动|
 |ss.xjtu.edu.cn/xsfw/sys/swmsyxsfzapp/ykHdController/getActivityList.do|所有活动|
+
+## Repo map:
+```
+UniFlow
+├── Backend                 The backend logic.
+│   ├── backend.md
+│   └── Site-scripts        Json formatted scripts for site-processing.
+│       ├── bjb.json
+│       └── site-scripts.md
+├── doi.md                  Domains of interest.
+├── readme.md               This Readme file.
+└── Urls.txt
+```

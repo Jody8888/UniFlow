@@ -1,5 +1,8 @@
 # Site-scripts
 This folder contains json scripts for resloving sites.
+## Tree
+```
+```
 ## Standards
 File name contains the subject domain to reslove and formated in json.
 File content contains what and whereabouts of the items of intereston the site desired to reslove.
@@ -13,7 +16,12 @@ It could go as such:
         "Container":"ul",                           #Type of container(ul/li etc...)
         "Class":"listg clearfix",                   #Class signature of the index
         "Entry":{                                   #Entries on the index
-            "Date_of_Release":"date-list",          #Class signature for Date of release
+            "Container":"li",
+            "Class":"",
+            "Date_of_Release":{
+                "Container":"span",
+                "Class":"date-list"                          #Class signature for Date of release
+            },
             "link":"a"                              #Link to entry:a(Standard a-href style links)
         }
     },

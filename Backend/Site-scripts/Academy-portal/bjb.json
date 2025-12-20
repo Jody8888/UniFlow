@@ -6,7 +6,12 @@
         "Container":"ul",
         "Class":"listg clearfix",
         "Entry":{
-            "Date_of_Release":"date-list",
+            "Container":"li",
+            "Class":"",
+            "Date_of_Release":{
+                "Container":"span",
+                "Class":"date-list"
+            },
             "link":"a"
         }
     },

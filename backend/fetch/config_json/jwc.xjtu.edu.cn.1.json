@@ -1,0 +1,22 @@
+{
+  "channel": "jwc.xjtu.edu.cn.1",
+  "list": {
+    "url": "https://jwc.xjtu.edu.cn/jxxx/jxdt.htm",
+    "container_xpath": "/html/body/div[6]/div[3]/ul",
+    "item_xpath": ".//a[@href]",
+    "title": {
+      "fallback": "text"
+    },
+    "link": {
+      "source": "href"
+    }
+  },
+  "detail": {
+    "content_xpath": "/html/body/div[6]/div[3]/div/form/div[2]",
+    "content_type": "text"
+  },
+  "limits": {
+    "max_items": 20
+  }
+}
+

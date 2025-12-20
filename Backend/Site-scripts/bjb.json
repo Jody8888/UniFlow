@@ -1,0 +1,24 @@
+{
+    "Domain":"bjb.xjtu.edu.cn",
+    "Url":"https://bjb.xjtu.edu.cn/xydt/tzgg.htm",
+    "Type":"static" ,
+    "List":{
+        "Element":"ul",
+        "Class":"listg clearfix",
+        "Entry":{
+            "Date_of_Release":"date-list",
+            "link":"a"
+        }
+    },
+    "Entry_Content":{
+        "Format":"html",
+        "Content":{
+            "Container":"div",
+            "Class":"v_news_content"
+        },        
+        "Appendix":{
+            "Container":"ul",
+            "Style":"list-style-type:none;"
+        }
+    }
+}

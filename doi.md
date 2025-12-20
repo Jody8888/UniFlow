@@ -16,7 +16,7 @@
 ### 书院门户
 | 网址 | 内容 | 授权情况 | 解析方式 |
 | ---- | ---- | ---- | ---- |
-| [bjb.xjtu.edu.cn](https://bjb.xjtu.edu.cn/xydt/tzgg.htm) | 钱学森学院 |  |  |
+| [bjb.xjtu.edu.cn](https://bjb.xjtu.edu.cn/xydt/tzgg.htm) | 钱学森学院 | Open | [bjb.json](./Backend/Site-scripts/bjb.json) |
 | [cy.xjtu.edu.cn](http://cy.xjtu.edu.cn/xwdt/tzgg.htm) | 仲英书院 |  |  |
 | [pksy.xjtu.edu.cn](https://pksy.xjtu.edu.cn/tzgg.htm) | 彭康书院 |  |  |
 | [sfs.xjtu.edu.cn](https://sfs.xjtu.edu.cn/glfw/tzgg.htm) | 外国语学院 | 这个其实没啥东西但是看到金秋外语节故保留 |  |

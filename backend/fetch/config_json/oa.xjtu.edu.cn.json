@@ -1,0 +1,25 @@
+{
+  "channel": "oa.xjtu.edu.cn",
+  "list": {
+    "url": "https://oa.xjtu.edu.cn/zxgg_index.jsp",
+    "container_xpath": "/html/body/form/table[3]/tr/td/table/tr[2]/td[2]/table",
+    "item_xpath": ".//a[contains(concat(' ', normalize-space(@class), ' '), ' noa_list ')]",
+    "title": {
+      "attr": "title",
+      "fallback": "text"
+    },
+    "link": {
+      "source": "onclick_regex",
+      "regex": "gotodetail\\('(?P<id>[^']+)'\\)",
+      "template": "https://oa.xjtu.edu.cn/zxgg_infonew.jsp?processInsId={id}",
+      "urlencode_group": "id"
+    }
+  },
+  "detail": {
+    "content_xpath": "/html/body/table[3]/tr/td/table/tr[2]/td[2]/table/tr[2]/td",
+    "content_type": "text"
+  },
+  "limits": {
+    "max_items": 20
+  }
+}

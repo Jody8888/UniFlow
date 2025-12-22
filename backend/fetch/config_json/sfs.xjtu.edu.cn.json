@@ -1,0 +1,23 @@
+{
+  "channel": "sfs.xjtu.edu.cn",
+  "list": {
+    "url": "https://sfs.xjtu.edu.cn/glfw/tzgg.htm",
+    "container_xpath": "/html/body/div[4]/div[1]/div[2]/div[3]/ul",
+    "item_xpath": ".//a[@href]",
+    "title": {
+      "attr": "title",
+      "fallback": "text"
+    },
+    "link": {
+      "source": "href"
+    }
+  },
+  "detail": {
+    "content_xpath": "/html/body/div[4]/div[1]/div[2]/div[3]/form/div[2]/div[1]/div",
+    "content_type": "html"
+  },
+  "limits": {
+    "max_items": 15
+  }
+}
+

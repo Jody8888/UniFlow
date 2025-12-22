@@ -1,0 +1,22 @@
+{
+  "channel": "lizhi.xjtu.edu.cn",
+  "list": {
+    "url": "https://lizhi.xjtu.edu.cn/xwtz/tzgg.htm",
+    "container_xpath": "/html/body/div[4]/div[2]/div[3]/ul",
+    "item_xpath": ".//a[@href]",
+    "title": {
+      "fallback": "text"
+    },
+    "link": {
+      "source": "href"
+    }
+  },
+  "detail": {
+    "content_xpath": "/html/body/div[4]/div[2]/form/div/div[2]/div/div",
+    "content_type": "html"
+  },
+  "limits": {
+    "max_items": 15
+  }
+}
+

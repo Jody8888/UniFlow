@@ -1,0 +1,23 @@
+{
+  "channel": "bjb.xjtu.edu.cn",
+  "list": {
+    "url": "https://bjb.xjtu.edu.cn/xydt/tzgg.htm",
+    "container_xpath": "/html/body/div[4]/div[1]/div[2]/ul",
+    "item_xpath": ".//a[@href]",
+    "title": {
+      "attr": "title",
+      "fallback": "text"
+    },
+    "link": {
+      "source": "href"
+    }
+  },
+  "detail": {
+    "content_xpath": "/html/body/div[4]/div[1]/div[2]/div[2]/form/div/div[1]/div",
+    "content_type": "html"
+  },
+  "limits": {
+    "max_items": 15
+  }
+}
+

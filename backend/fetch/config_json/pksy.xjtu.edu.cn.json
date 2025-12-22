@@ -1,0 +1,22 @@
+{
+  "channel": "pksy.xjtu.edu.cn",
+  "list": {
+    "url": "https://pksy.xjtu.edu.cn/tzgg.htm",
+    "container_xpath": "/html/body/div[5]/div[2]/div[2]/ul",
+    "item_xpath": ".//a[@href]",
+    "title": {
+      "fallback": "text"
+    },
+    "link": {
+      "source": "href"
+    }
+  },
+  "detail": {
+    "content_xpath": "/html/body/div[6]/div[2]/div[2]/form/div/div[4]/div/div",
+    "content_type": "html"
+  },
+  "limits": {
+    "max_items": 15
+  }
+}
+

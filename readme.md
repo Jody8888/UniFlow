@@ -52,7 +52,6 @@
 │   │   ├── main.py
 │   │   ├── parser.py
 │   │   ├── README.MD           #Readme for fetcher
-│   │   ├── README.ME
 │   │   └── requirements.txt
 │   └── readme.md
 ├── doi.md                      #[Deserted]Domains of interest

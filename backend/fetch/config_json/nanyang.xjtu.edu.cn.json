@@ -2,7 +2,7 @@
   "channel": "nanyang.xjtu.edu.cn",
   "list": {
     "url": "https://nanyang.xjtu.edu.cn/xwtz/tzgg.htm",
-    "container_xpath": "/html/body/div[4]/div/div[2]/ul",
+    "container_xpath": "//ul[@class='text-list']",
     "item_xpath": ".//a[@href]",
     "title": {
       "attr": "title",
@@ -13,7 +13,7 @@
     }
   },
   "detail": {
-    "content_xpath": "//*[@id="img-content"]",
+    "content_xpath": "/html/body/div[2]/div[2]/div[2]/div/div[1]",
     "content_type": "html"
   },
   "limits": {

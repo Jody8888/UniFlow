@@ -40,6 +40,21 @@ class RetryingHttpClient:
         if headers:
             self._session.headers.update(headers)
 
+    # Dynamic cookie-loading against anti-bot
+    def add_cookie(self, name: str, value: str, domain: str = ".xjtu.edu.cn", path: str = "/") -> None:
+        """
+        :param self: Handler
+        :param name: Name of the cookie.
+        :type name: str
+        :param value: Value for the cookie.
+        :type value: str
+        :param domain: Subdomain for cookie to take effect.
+        :type domain: str
+        :param path: Path for cookie to take effect.
+        :type path: str
+        """
+        self._session.cookies.set(name, value, domain=domain, path=path)
+
     def get(self, url: str, *, debug: list[str] | None = None, **kwargs: Any) -> requests.Response:
         debug = debug if debug is not None else []
         last_exc: Exception | None = None

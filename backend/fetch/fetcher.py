@@ -32,6 +32,7 @@ class AnnouncementFetcher:
             retry_policy=retry_policy or RetryPolicy(max_attempts=5, sleep_step_seconds=10.0),
             headers=headers,
         )
+        self._client.add_cookie("client_id", "somecookie:-)")  #Seriously, any cookie will do.
 
     def fetch(self, config_path: str, *, max_items: int | None = None) -> dict[str, Any]:
         debug: list[str] = []

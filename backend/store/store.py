@@ -72,10 +72,10 @@ def init_pg():
         cur.execute("""
             CREATE TABLE IF NOT EXISTS events (
                 uuid UUID NOT NULL PRIMARY KEY,
-                channel VARCHAR NOT NULL,
+                channel VARCHAR(100) NOT NULL,
                 fetch_time TIMESTAMP NOT NULL,
-                title VARCHAR NOT NULL,
-                genre VARCHAR NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                genre VARCHAR(50) NOT NULL,
                 timeline JSONB NOT NULL,
                 original_text TEXT
             );

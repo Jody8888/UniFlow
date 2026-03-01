@@ -44,7 +44,7 @@
         "uuid": "8f38c352-32a2-4a0b-9df0-7d0e12b21c43",
         "channel": "dean.xjtu.edu.cn",
         "title": "关于退课名单的通知",
-        "genre": "教学",
+        "genre": "教务",
         "importance": 10,
         "review": "直接关联学期课表和个人情况的重要教务操作",
         "fetch_time": "2026-03-01T21:40:02.134Z"

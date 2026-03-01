@@ -1,13 +1,13 @@
 # UniFlow: A campus info gathering and feeding platform
 ## TODOs and Workflow [todos.md](./todos.md)
-| Tasks | Description | Readme file | Assigned to |
+| Task | Description | Readme file | Assigned to |
 | ----- | ----------- | ----------- | ----------- |
-| - [ ] [Backend] Html fetcher | Handling sites hosting raw notification | [README.MD](./backend/fetch/README.MD) |  |
-| - [ ] [Backend] AI processor | Forwarding notification fetched to AI for structuralized results. | [PENDING] | [PENDING] |
-| - [ ] [Backend] Notification database | Hosting notification info for clients to fetch. | [PENDING] | [PENDING] |
-| - [ ] [Frontend] Android frontend | Calendar and todo feature | [PENDING] | [PENDING] |
-| - [ ] [Frontend] iOS frontend | Calendar and todo feature | [PENDING] | [PENDING] |
-| - [ ] [Frontend & Backend] Feed management site | Administrate the fetch&feed stream | [PENDING] | [PENDING] |
+| - [x] [Backend] Html fetcher | 爬取原生Html内容 | [README.MD](./backend/fetch/README.MD) |  |
+| - [x] [Backend] AI processor | 转发原始文本至Qwen2.5-7B-Instruct进行结构化处理后存入服务端Postgres数据库 | [README.md](./backend/store/README.md) | Thusci |
+| - [ ] [Backend] Notification api | 基于 FastAPI面向前端和小程序提供的 RESTful 接口。 | [readme.md](./backend/api/README.md) | [PENDING] Jody |
+| - [ ] [Frontend] Android frontend | 事件日历与待办功能 | [PENDING] | [PENDING] |
+| - [ ] [Frontend] iOS frontend | 事件日历与待办功能 | [PENDING] | [PENDING] |
+| - [ ] [Frontend & Backend] Feed management site | 管理爬取/推送流程 | [PENDING] | [PENDING] |
 
 ### 学校官方
 | 网址 | 内容 | 授权情况 | 解析方式 | 备注 |

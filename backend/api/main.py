@@ -58,7 +58,7 @@ def get_events(
     limit: int = Query(20, ge=1, le=100),
     genre: Optional[str] = None,
     channel: Optional[str] = None,
-    sort_by: str = Query("fetch_time", pattern="^(fetch_time|importance)$")
+    sort_by: str = Query("fetch_time", pattern="^(fetch_time|importance|importance_time)$")
 ):
     """
     Get a paginated list of events.
@@ -88,7 +88,10 @@ def get_events(
             count_query += where_clause
             
         # Determine sorting
-        order_clause = f" ORDER BY {sort_by} DESC"
+        if sort_by == "importance_time":
+            order_clause = " ORDER BY importance DESC, fetch_time DESC"
+        else:
+            order_clause = f" ORDER BY {sort_by} DESC"
         query += order_clause
         
         # Pagination

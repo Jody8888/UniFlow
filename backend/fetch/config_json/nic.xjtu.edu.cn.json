@@ -1,0 +1,21 @@
+{
+    "channel": "nic.xjtu.edu.cn",
+    "list": {
+        "url": "https://nic.xjtu.edu.cn/xwzx/tzgg.htm",
+        "container_xpath": "//div[contains(@class,'list_right_con')]//ul",
+        "item_xpath": ".//li[contains(@id,'line_u')]/a[@href]",
+        "title": {
+            "fallback": "text"
+        },
+        "link": {
+            "source": "href"
+        }
+    },
+    "detail": {
+        "content_xpath": "//div[contains(@class,'v_news_content')]",
+        "content_type": "text"
+    },
+    "limits": {
+        "max_items": 15
+    }
+}

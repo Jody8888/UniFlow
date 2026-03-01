@@ -1,0 +1,22 @@
+{
+    "channel": "pec.xjtu.edu.cn.dcxm",
+    "list": {
+        "url": "https://pec.xjtu.edu.cn/cxcy/dcxm.htm",
+        "container_xpath": "//ul[contains(@class,'listg')]",
+        "item_xpath": ".//li//a[@href]",
+        "title": {
+            "attr": "title",
+            "fallback": "text"
+        },
+        "link": {
+            "source": "href"
+        }
+    },
+    "detail": {
+        "content_xpath": "//div[contains(@class,'v_news_content')]",
+        "content_type": "text"
+    },
+    "limits": {
+        "max_items": 15
+    }
+}

@@ -43,7 +43,7 @@ def print_result(fetch_result):
         if l:
             print(f"    链接: {l}")
         # 如果内容太长则截断，展示前200字符
-        preview = c.replace('\n', '  ')[:200]
+        preview = c.replace('\n', '  ')[:1000]
         print(f"    正文: {preview}{'...' if len(c) > 200 else ''}")
 
 def main():

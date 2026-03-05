@@ -149,9 +149,12 @@ def init_pg():
                 title VARCHAR(255) NOT NULL,
                 genre VARCHAR(50),
                 importance INT,
+                source VARCHAR(20),
                 review TEXT,
                 link TEXT,
+                keywords VARCHAR(255),
                 timeline JSONB,
+                attachment JSONB,
                 original_text TEXT,
                 fetch_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
@@ -212,15 +215,18 @@ def call_qwen(content: str) -> dict:
             "title": parsed.get("title", ""),
             "genre": parsed.get("genre", "其他"),
             "importance": parsed.get("importance", 0),
+            "source": parsed.get("source", "其他"),
             "review": parsed.get("review", ""),
-            "timeline": parsed.get("timeline", [])
+            "keywords": parsed.get("keywords", ""),
+            "timeline": parsed.get("timeline", []),
+            "attachment": parsed.get("attachment", [])
         }
     except json.JSONDecodeError:
         print("JSON 解析失败，返回默认结构")
-        return {"title": "", "genre": "其他", "importance": 0, "review": "", "timeline": [], "error": "JSON解析失败"}
+        return {"title": "", "genre": "其他", "importance": 0, "source": "其他", "review": "", "keywords": "", "timeline": [], "attachment": [], "error": "JSON解析失败"}
     except Exception as e:
         print(f"Qwen API调用失败：{e}")
-        return {"title": "", "genre": "其他", "importance": 0, "review": "", "timeline": [], "error": str(e)}
+        return {"title": "", "genre": "其他", "importance": 0, "source": "其他", "review": "", "keywords": "", "timeline": [], "attachment": [], "error": str(e)}
 
 def process_and_store(fetch_result, pg_conn, pg_cur):
     """提取的通用处理和入库逻辑"""
@@ -268,9 +274,12 @@ def process_and_store(fetch_result, pg_conn, pg_cur):
             qwen_data["title"] or ori_title,  # title
             qwen_data["genre"],        # genre
             qwen_data["importance"],   # importance
+            qwen_data["source"],       # source
             qwen_data["review"],       # review
             link,                      # link
+            qwen_data["keywords"],     # keywords
             json.dumps(qwen_data["timeline"], ensure_ascii=False),  # timeline（JSONB）
+            json.dumps(qwen_data["attachment"], ensure_ascii=False),  # attachment（JSONB）
             content                    # original_text
         )
 
@@ -278,7 +287,7 @@ def process_and_store(fetch_result, pg_conn, pg_cur):
         try:
             pg_cur.execute("""
                 INSERT INTO events (
-                    uuid, channel, fetch_time, title, genre, importance, review, link, timeline, original_text
+                    uuid, channel, fetch_time, title, genre, importance, source, review, keywords, link, timeline, attachment, original_text
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
             """, insert_data)
             pg_conn.commit()

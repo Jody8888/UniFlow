@@ -61,7 +61,7 @@ token_timestamps = deque()
 
 def init_pg():
     try:
-        conn = psycopg2.connect(**PG_CONFIG)
+        conn = psycopg2.connect(**PG_CONFIG,client_encoding="utf8")
         cur = conn.cursor()
         cur.execute("""
             CREATE TABLE IF NOT EXISTS events (
@@ -179,7 +179,7 @@ def process_and_store(fetch_result, pg_conn, pg_cur):
         qwen_data = call_qwen(content)
 
         #Gen uuid
-        event_uuid = uuid.uuid4()
+        event_uuid = str(uuid.uuid4())
 
         #Assemble data
         insert_data = (

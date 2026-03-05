@@ -28,8 +28,8 @@
 │   │   ├── api_fetcher.py                      #独立的 JSON API 数据源抓取模块，处理无法用 HTML + XPath 抓取的数据源
 │   │   ├── config_json                         #各个网站对应的json配置文件
 │   │   │   ├── bjb.xjtu.edu.cn.json                #钱学森书院
-│   │   │   ├── bw.xjtu.edu.cn.json                 #
-│   │   │   ├── cy.xjtu.edu.cn.json                 #
+│   │   │   ├── bw.xjtu.edu.cn.json                 #保卫处
+│   │   │   ├── cy.xjtu.edu.cn.json                 #仲英书院
 │   │   │   ├── dean.xjtu.edu.cn.json               #教务处
 │   │   │   ├── jwc.xjtu.edu.cn.1.json              #教务处
 │   │   │   ├── jwc.xjtu.edu.cn.2.json              #教务处
@@ -38,16 +38,16 @@
 │   │   │   ├── nic.xjtu.edu.cn.json                #网信中心
 │   │   │   ├── oa.xjtu.edu.cn.json                 #办公系统
 │   │   │   ├── pec.xjtu.edu.cn.dcxm.json           #
-│   │   │   ├── pec.xjtu.edu.cn.js.json             #
+│   │   │   ├── pec.xjtu.edu.cn.js.json             #实践教学中心（工程坊）
 │   │   │   ├── pksy.xjtu.edu.cn.json               #彭康书院
-│   │   │   ├── sfs.xjtu.edu.cn.json                #
+│   │   │   ├── sfs.xjtu.edu.cn.json                #外国语学院
 │   │   │   └── zlsy.xjtu.edu.cn.json               #宗濂书院
-│   │   ├── config.py                           #
+│   │   ├── config.py                           #配置文件载入器
 │   │   ├── fetcher.py                          #爬取器
 │   │   ├── http_client.py                      #HTTP客户端（承担网页访问）
 │   │   ├── __init__.py                         #
-│   │   ├── main.py                             #
-│   │   ├── parser.py                           #
+│   │   ├── main.py                             #仅用于开发调试的单配置运行入口（非业务集成方式）
+│   │   ├── parser.py                           #XPath/文本/链接解析工具
 │   │   └── test_all.py                         #
 │   └── store                               #存储到数据库
 │       ├── README.md                           #存入功能文档

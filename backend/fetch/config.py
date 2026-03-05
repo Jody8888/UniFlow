@@ -1,9 +1,7 @@
 from __future__ import annotations
-
 import json
 import os
 from typing import Any
-
 
 def load_config(path: str) -> dict[str, Any]:
     with open(path, "r", encoding="utf-8") as f:
@@ -11,7 +9,6 @@ def load_config(path: str) -> dict[str, Any]:
     if "channel" not in cfg:
         cfg["channel"] = os.path.splitext(os.path.basename(path))[0]
     return cfg
-
 
 def validate_config(cfg: dict[str, Any]) -> None:
     if not isinstance(cfg, dict):
@@ -33,4 +30,3 @@ def validate_config(cfg: dict[str, Any]) -> None:
 
     if "content_xpath" not in detail_cfg:
         raise ValueError("missing detail.content_xpath")
-

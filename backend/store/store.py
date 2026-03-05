@@ -11,8 +11,7 @@ from datetime import datetime
 from collections import deque
 from psycopg2.extras import RealDictCursor
 
-# --- Path Resolution ---
-# Resolve the path to backend directory dynamically
+# 路径配置
 STORE_DIR = Path(__file__).resolve().parent
 BACKEND_DIR = STORE_DIR.parent
 FETCH_DIR = BACKEND_DIR / "fetch"

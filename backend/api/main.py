@@ -58,7 +58,8 @@ def get_events(
     limit: int = Query(20, ge=1, le=100),
     genre: Optional[str] = None,
     channel: Optional[str] = None,
-    sort_by: str = Query("fetch_time", pattern="^(fetch_time|importance|importance_time)$")
+    days_ago: Optional[int] = Query(None, description="Filter events within the last N days"),
+    sort_by: str = Query("fetch_time", pattern="^(fetch_time|importance|importance_time|trending)$")
 ):
     """
     Get a paginated list of events.
@@ -82,6 +83,10 @@ def get_events(
             conditions.append("channel = %s")
             params.append(channel)
             
+        if days_ago is not None:
+            conditions.append("fetch_time >= NOW() - CAST(%s AS INTERVAL)")
+            params.append(f"{days_ago} days")
+            
         if conditions:
             where_clause = " WHERE " + " AND ".join(conditions)
             query += where_clause
@@ -90,6 +95,10 @@ def get_events(
         # Determine sorting
         if sort_by == "importance_time":
             order_clause = " ORDER BY importance DESC, fetch_time DESC"
+        elif sort_by == "trending":
+            # Time-decay algorithm (Hacker News ranking style): Score = Importance / (Hours_ago + 2)^1.5
+            # We use greatest() to avoid negative hours if fetch_time is slightly in the future (due to timezone glitches etc)
+            order_clause = " ORDER BY (importance / POWER(GREATEST(EXTRACT(EPOCH FROM (NOW() - fetch_time))/3600.0, 0.0) + 2.0, 1.5)) DESC"
         else:
             order_clause = f" ORDER BY {sort_by} DESC"
         query += order_clause

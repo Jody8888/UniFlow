@@ -30,7 +30,7 @@
 - `fetch_time`: 按最新抓取/发布时间倒序排（最新鲜在最前）
 - `importance`: 纯按 AI 判定的重要度倒序排（10分最高在最前）
 - `importance_time`: 复合排序，先以重要度为主排序，同一重要度级别下按抓取时间倒序合并。
-- `trending` (推荐): **时间衰减算法 (Hacker News 风格)**。Score = Importance / (HoursAgo + 2)^1.5，让重要度高的新鲜事排在最前面，但随着时间推移分数平滑衰减，即使重要度再高，过了很久也会为新事件让路。
+- `trending` (推荐): **时间衰减算法**。Score = Importance / (HoursAgo + 2)^1.5，让重要度高的新鲜事排在最前面，但随着时间推移分数平滑衰减，即使重要度再高，过了很久也会为新事件让路。
 
 **返回结构示例**:
 ```json
@@ -38,7 +38,7 @@
   "success": true,
   "data": {
     "page": 1,
-    "limit": 20,
+    "limit": 30,
     "total": 356,           // 满足条件的总条数
     "total_pages": 18,      // 总页数
     "items": [

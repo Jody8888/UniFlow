@@ -44,8 +44,14 @@ class EventSummary(BaseModel):
     title: str
     genre: str
     importance: int
+    source: Optional[str]
     review: Optional[str]
+    link: Optional[str]
+    keywords: Optional[str]
+    timeline: Optional[List[dict]]
+    attachment: Optional[List[dict]]
     fetch_time: datetime
+
 
 class EventDetail(EventSummary):
     link: Optional[str]
@@ -55,11 +61,11 @@ class EventDetail(EventSummary):
 @app.get("/api/events", response_model=dict)
 def get_events(
     page: int = Query(1, ge=1),
-    limit: int = Query(20, ge=1, le=100),
+    limit: int = Query(30, ge=1, le=100),
     genre: Optional[str] = None,
     channel: Optional[str] = None,
     days_ago: Optional[int] = Query(None, description="Filter events within the last N days"),
-    sort_by: str = Query("fetch_time", pattern="^(fetch_time|importance|importance_time|trending)$")
+    sort_by: str = Query("trending", pattern="^(importance|importance_time|trending|timeline_date)$")
 ):
     """
     Get a paginated list of events.
@@ -69,7 +75,7 @@ def get_events(
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
     try:
-        query = "SELECT uuid, channel, title, genre, importance, review, fetch_time FROM events"
+        query = "SELECT uuid, channel, title, genre, importance, source, review, link, keywords, timeline, attachment, fetch_time FROM events"
         count_query = "SELECT COUNT(*) FROM events"
         
         conditions = []
@@ -92,14 +98,29 @@ def get_events(
             query += where_clause
             count_query += where_clause
             
+        # Define the base calculated time SQL: Extract last timeline date if available, fallback to fetch_time
+        # Use a subquery to extract the first value of the last object in the timeline array
+        calculated_date_sql = """
+            (CASE 
+                WHEN jsonb_array_length(timeline) > 0 
+                AND timeline->-1 IS NOT NULL
+                AND (SELECT value FROM jsonb_each_text(timeline->-1) LIMIT 1) IS NOT NULL
+                THEN (SELECT value FROM jsonb_each_text(timeline->-1) LIMIT 1)::timestamp 
+                ELSE fetch_time 
+            END)
+        """
+
         # Determine sorting
         if sort_by == "importance_time":
-            order_clause = " ORDER BY importance DESC, fetch_time DESC"
+            order_clause = f" ORDER BY importance DESC, {calculated_date_sql} DESC"
         elif sort_by == "trending":
             # Time-decay algorithm (Hacker News ranking style): Score = Importance / (Hours_ago + 2)^1.5
-            # We use greatest() to avoid negative hours if fetch_time is slightly in the future (due to timezone glitches etc)
-            order_clause = " ORDER BY (importance / POWER(GREATEST(EXTRACT(EPOCH FROM (NOW() - fetch_time))/3600.0, 0.0) + 2.0, 1.5)) DESC"
-        else:
+            # We use greatest() to avoid negative hours if calculated time is slightly in the future (due to timezone glitches etc)
+            order_clause = f" ORDER BY (importance / POWER(GREATEST(EXTRACT(EPOCH FROM (NOW() - {calculated_date_sql}))/3600.0, 0.0) + 2.0, 1.5)) DESC"
+        elif sort_by == "timeline_date":
+            # Sort by the latest valid timeline date (the last item in the array to represent the latest deadline/time)
+            order_clause = f" ORDER BY {calculated_date_sql} DESC, importance DESC"
+        else: # importance
             order_clause = f" ORDER BY {sort_by} DESC"
         query += order_clause
         

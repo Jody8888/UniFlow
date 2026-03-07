@@ -22,7 +22,7 @@ sys.path.insert(0, str(BACKEND_DIR))
 #QWEN2.5-7B-Instruct API(Slicon Flow)
 QWEN_API_URL = "https://api.siliconflow.cn/v1/chat/completions"
 QWEN_API_KEY = "sk-jtqjtcosjdnwqsyuqpsdxpfsierzlejkwtldfyhasomsirpx"
-QWEN_MODEL = "Qwen/Qwen2.5-7B-Instruct"
+QWEN_MODEL = "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B"
 
 
 MAX_RPM = 1000
@@ -31,11 +31,11 @@ WINDOW = 60
 
 #PostgreSQL
 PG_CONFIG = {
-    "host": "127.0.0.1",
-    "port": 5432,
-    "user": "test",
-    "password": "passwd",
-    "dbname": "uniflow"
+    "host": os.getenv("PG_HOST", "127.0.0.1"),
+    "port": int(os.getenv("PG_PORT", 5432)),
+    "user": os.getenv("PG_USER", "test"),
+    "password": os.getenv("PG_PASSWORD", "passwd"),
+    "dbname": os.getenv("PG_DBNAME", "uniflow")
 }
 
 #System Prompt
@@ -71,8 +71,8 @@ SYSTEM_PROMPT = SYSTEM_PROMPT = """
 ---
 ## 字段详细定义与强制约束
 ### 3.1 title（事件标题）
-- 要求：与原通知标题完全一致，不修改、不缩写、不增减内容；
-- 兜底：原文无明确标题时，取原文第一句完整语义的句子；无任何有效内容时填"无标题"。
+- 要求：与原通知标题完全一致，不修改、不缩写、不增减内容，如果过长就适当概括；
+- 兜底：原文无明确标题时，自己概括一个标题；无任何有效内容时填"无标题"。
 
 ### 3.2 genre（事件类型）
 - 要求：**必须从以下枚举值中唯一选择，禁止自定义**：
@@ -80,13 +80,36 @@ SYSTEM_PROMPT = SYSTEM_PROMPT = """
 - 兜底：无法明确分类时填"其他"。
 
 ### 3.3 importance（重要程度）
-- 要求：仅返回0-10之间的整数，严格按以下规则评分：
-  1. 直接影响学业的（选课、考试、成绩、学籍、毕业相关）：≥8分；
-  2. 有明确截止日期的活动/竞赛：≥5分（校级≥7分，院级≥5分，级别越高分数越高）；
-  3. 无明确截止、不影响核心学业的一般性通知：4-7分；
-  4. 与在校学生无直接关联的纯告知类内容：≤4分；
-  5. 已过期的通知（按原文最晚截止时间判断）：≤2分；
-- 兜底：无法判断时填3分。
+- 要求：仅返回0-10之间的整数，**严格按照以下优先级顺序执行规则，先命中先生效，禁止反向调整**
+- 【关键术语明确定义】
+  1.  已过期：通知中最晚的截止时间、报名结束时间、活动举办时间，早于当前系统时间，即判定为已过期
+  2.  直接影响学业：仅包含选课、期中/期末考试、补考/缓考、四六级/计算机等国家级考试、成绩发布/复核、学籍异动、毕业资格审核、学位授予、培养方案调整
+  3.  通知级别：
+      - 校级：发布机构为学校职能部门（教务处、团委、学生处、招生办等枚举内的校级部门）
+      - 院级：发布机构为学院、书院
+      - 班级级：发布机构为班级、学生社团、实验室
+- 【核心评分规则（优先级从高到低，高优先级规则覆盖低优先级）】
+  1.  已过期的所有通知：仅允许0-2分，最高不超过2分
+  2.  直接影响学业的通知：
+      - 有明确截止时间/考试时间的：8-10分（截止时间越近分数越高，毕业/学籍相关不低于9分）
+      - 无明确截止时间的：不低于8分
+  3.  有明确截止日期的活动/竞赛类通知：
+      - 国家级/省级竞赛：不低于8分
+      - 校级活动/竞赛：不低于7分
+      - 院级活动/竞赛：不低于5分
+      - 班级/社团级活动：不低于4分
+  4.  无明确截止、不影响核心学业的一般性通知：
+      - 全校性计划通知（如校历调整、放假安排）：6-7分
+      - 校园管理，公共事务，教学评优，方案流程，办公等与学生无关联的内容：0-3分
+      - 院级/书院公共通知：5-6分
+      - 后勤服务类通知（如食堂、浴室、物业、校园网）：4-5分
+  5.  与在校学生无直接关联的纯告知类内容：≤3分
+  6.  空内容、无效内容、无法识别的通知：0分
+- 【特殊场景调整规则】
+  - 标注“紧急”“重要”“务必查看”的通知，可在基础分上+1分，最高不超过10分
+  - 纯转发、无实质新增内容的通知，可在基础分上-1分，最低不低于0分
+- 兜底规则：无法明确分类、无有效判断依据时，固定填2分
+
 
 ### 3.4 source（发布机构）
 - 要求：**必须从以下枚举值中唯一选择，禁止自定义**：
@@ -108,10 +131,11 @@ SYSTEM_PROMPT = SYSTEM_PROMPT = """
 ### 3.7 timeline（时间线）
 - 要求：
   1. 提取原文中所有明确的时间节点，按时间从早到晚升序排列；
-  2. 时间格式严格统一为「YYYY-MM-DD HH:MM:SS」，原文无具体时分秒时填「00:00:00」；
+  2. 时间格式严格统一为「YYYY-MM-DD HH:MM:SS」，原文无具体时分秒时填「00:00:00」，年月日绝对不能为00!!!，必须是这个格式，必须符合时间格式；
   3. 「节点名称」必须是描述事件动作的短语（如"报名截止""初赛开始"），禁止用时间作为节点名；
-- 正确示例：[{"报名截止": "2026-04-05 23:59:59"}, {"初赛评选": "2026-04-15 09:00:00"}]
-- 兜底：原文无明确时间节点时，返回空数组[]。
+  4. 最后一个节点就是文章发布的时间，"发布时间"。
+- 正确示例：[{"报名截止": "2026-04-05 23:59:59"}, {"初赛评选": "2026-04-15 09:00:00"}, {"发布时间": "2026-03-05 09:00:00"}]
+- 兜底：原文无明确时间节点时，就只要返回文章发布的时间。
 
 ### 3.8 attachment（附件列表）
 - 要求：
@@ -183,49 +207,61 @@ def check_rate_limit(tokens):
     req_timestamps.append(now)
     token_timestamps.append((now, tokens))
 
-def call_qwen(content: str) -> dict:
-    """调用Qwen API，返回解析后的结构化字典"""
-    try:
-        check_rate_limit(len(content) + 500)
-        
-        payload = {
-            "model": QWEN_MODEL,
-            "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": f"提取以下内容：\n\n{content}"}
-            ],
-            "temperature": 0.0,
-            "stream": False
-        }
-        
-        headers = {
-            "Authorization": f"Bearer {QWEN_API_KEY}",
-            "Content-Type": "application/json"
-        }
-        
-        response = requests.post(QWEN_API_URL, json=payload, headers=headers)
-        response.raise_for_status()
-        
-        result_json = response.json()["choices"][0]["message"]["content"]
-        # print(f"DEBUG LLM RETURN:\n{result_json}")
-        
-        parsed = json.loads(result_json)
-        return {
-            "title": parsed.get("title", ""),
-            "genre": parsed.get("genre", "其他"),
-            "importance": parsed.get("importance", 0),
-            "source": parsed.get("source", "其他"),
-            "review": parsed.get("review", ""),
-            "keywords": parsed.get("keywords", ""),
-            "timeline": parsed.get("timeline", []),
-            "attachment": parsed.get("attachment", [])
-        }
-    except json.JSONDecodeError:
-        print("JSON 解析失败，返回默认结构")
-        return {"title": "", "genre": "其他", "importance": 0, "source": "其他", "review": "", "keywords": "", "timeline": [], "attachment": [], "error": "JSON解析失败"}
-    except Exception as e:
-        print(f"Qwen API调用失败：{e}")
-        return {"title": "", "genre": "其他", "importance": 0, "source": "其他", "review": "", "keywords": "", "timeline": [], "attachment": [], "error": str(e)}
+def call_qwen(content: str, ori_title: str = "", link: str = "", metadata_time: str = "", max_retries: int = 3) -> dict:
+    """调用Qwen API，返回解析后的结构化字典，带重试机制"""
+    for attempt in range(max_retries):
+        try:
+            check_rate_limit(len(content) + 500)
+            
+            # 将相关元数据也一并传给模型，提供更好的判定参考
+            user_msg = (
+                f"参考标题：{ori_title}\n"
+                f"原文链接：{link}\n"
+                f"参考时间（发布时间）：{metadata_time}\n\n"
+                f"提取以下正文内容：\n\n{content}"
+            )
+            
+            payload = {
+                "model": QWEN_MODEL,
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": user_msg}
+                ],
+                "temperature": 0.0,
+                "stream": False
+            }
+            
+            headers = {
+                "Authorization": f"Bearer {QWEN_API_KEY}",
+                "Content-Type": "application/json"
+            }
+            
+            response = requests.post(QWEN_API_URL, json=payload, headers=headers)
+            response.raise_for_status()
+            
+            result_json = response.json()["choices"][0]["message"]["content"]
+            # print(f"DEBUG LLM RETURN:\n{result_json}")
+            
+            parsed = json.loads(result_json)
+            return {
+                "title": parsed.get("title", ""),
+                "genre": parsed.get("genre", "其他"),
+                "importance": parsed.get("importance", 0),
+                "source": parsed.get("source", "其他"),
+                "review": parsed.get("review", ""),
+                "keywords": parsed.get("keywords", ""),
+                "timeline": parsed.get("timeline", []),
+                "attachment": parsed.get("attachment", [])
+            }
+        except json.JSONDecodeError as e:
+            print(f"JSON 解析失败 (尝试 {attempt + 1}/{max_retries}): {e}")
+            if attempt == max_retries - 1:
+                return {"title": "", "genre": "其他", "importance": 0, "source": "其他", "review": "", "keywords": "", "timeline": [], "attachment": [], "error": "JSON解析失败"}
+        except Exception as e:
+            print(f"Qwen API调用失败 (尝试 {attempt + 1}/{max_retries}): {e}")
+            if attempt == max_retries - 1:
+                return {"title": "", "genre": "其他", "importance": 0, "source": "其他", "review": "", "keywords": "", "timeline": [], "attachment": [], "error": str(e)}
+            time.sleep(1) # 重试前稍作等待
 
 def process_and_store(fetch_result, pg_conn, pg_cur):
     """提取的通用处理和入库逻辑"""
@@ -254,13 +290,35 @@ def process_and_store(fetch_result, pg_conn, pg_cur):
             print(f"  -> 已存在数据库中，跳过")
             continue
 
-        #Skip if empty
+        # Skip if empty
         if not titles:
             print(f"  -> 第{idx+1}条内容为空，跳过")
             continue
 
-        #Resolve timeline
-        qwen_data = call_qwen(content)
+        # 将标题、链接、抓取时间传给模型作为上下文
+        qwen_data = call_qwen(content, ori_title=ori_title, link=link, metadata_time=str(fetch_time))
+
+        if "error" in qwen_data:
+            print(f"  -> 大模型解析失败，跳过入库：{qwen_data['error']}")
+            continue
+
+        # 校验并清洗 timeline 时间格式
+        valid_timeline = []
+        if isinstance(qwen_data.get("timeline"), list):
+            for item in qwen_data["timeline"]:
+                if not isinstance(item, dict):
+                    continue
+                cleaned_item = {}
+                for k, v in item.items():
+                    try:
+                        # 查验时间格式是否严格复合 "%Y-%m-%d %H:%M:%S"，且为合法真实时间
+                        datetime.strptime(str(v).strip(), "%Y-%m-%d %H:%M:%S")
+                        cleaned_item[k] = str(v).strip()
+                    except ValueError:
+                        print(f"  -> [警告] 时间格式非法，自动剔除该节点: '{k}': '{v}'")
+                if cleaned_item:
+                    valid_timeline.append(cleaned_item)
+        qwen_data["timeline"] = valid_timeline
 
         #Gen uuid
         event_uuid = str(uuid.uuid4())
@@ -286,8 +344,8 @@ def process_and_store(fetch_result, pg_conn, pg_cur):
         try:
             pg_cur.execute("""
                 INSERT INTO events (
-                    uuid, channel, fetch_time, title, genre, importance, source, review, keywords, link, timeline, attachment, original_text
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+                    uuid, channel, fetch_time, title, genre, importance, source, review, link, keywords, timeline, attachment, original_text
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
             """, insert_data)
             pg_conn.commit()
             print(f"  -> 第{idx+1}条入库成功 | UUID：{event_uuid}")

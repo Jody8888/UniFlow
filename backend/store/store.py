@@ -12,7 +12,7 @@ from datetime import datetime
 from collections import deque
 from psycopg2.extras import RealDictCursor
 
-load_dotenv("envpath")
+load_dotenv("../../.env")
 
 # 路径配置
 STORE_DIR = Path(__file__).resolve().parent

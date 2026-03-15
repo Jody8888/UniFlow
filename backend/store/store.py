@@ -41,7 +41,7 @@ PG_CONFIG = {
 }
 
 #System Prompt
-with open(os.getenv("SYSTEM_PROMPT","system_prompt.prompt"),"r",encodind="UTF-8") as pro:
+with open(os.getenv("SYSTEM_PROMPT","system_prompt.prompt"),"r",encoding="UTF-8") as pro:
     SYSTEM_PROMPT = pro.read()
 
 #Rate Limit logic config

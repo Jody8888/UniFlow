@@ -4,6 +4,7 @@ import json
 import time
 import uuid
 import glob
+from dotenv import load_dotenv
 from pathlib import Path
 import psycopg2
 import requests
@@ -11,8 +12,9 @@ from datetime import datetime
 from collections import deque
 from psycopg2.extras import RealDictCursor
 
-# --- Path Resolution ---
-# Resolve the path to backend directory dynamically
+load_dotenv("../../.env")
+
+# 路径配置
 STORE_DIR = Path(__file__).resolve().parent
 BACKEND_DIR = STORE_DIR.parent
 FETCH_DIR = BACKEND_DIR / "fetch"
@@ -21,10 +23,9 @@ CONFIG_DIR = FETCH_DIR / "config_json"
 sys.path.insert(0, str(BACKEND_DIR))
 
 #QWEN2.5-7B-Instruct API(Slicon Flow)
-QWEN_API_URL = "https://api.siliconflow.cn/v1/chat/completions"
-QWEN_API_KEY = "sk-jtqjtcosjdnwqsyuqpsdxpfsierzlejkwtldfyhasomsirpx"
-QWEN_MODEL = "Qwen/Qwen2.5-7B-Instruct"
-
+QWEN_API_URL = os.getenv("QWEN_API_URL", "")
+QWEN_API_KEY = os.getenv("QWEN_API_KEY", "")
+QWEN_MODEL = os.getenv("QWEN_MODEL", "")
 
 MAX_RPM = 1000
 MAX_TPM = 50000
@@ -32,107 +33,16 @@ WINDOW = 60
 
 #PostgreSQL
 PG_CONFIG = {
-    "host": "127.0.0.1",
-    "port": 5432,
-    "user": "test",
-    "password": "passwd",
-    "dbname": "uniflow"
+    "host": os.getenv("PG_HOST", "127.0.0.1"),
+    "port": int(os.getenv("PG_PORT", 5432)),
+    "user": os.getenv("PG_USER", "test"),
+    "password": os.getenv("PG_PASSWD", "passwd"),
+    "dbname": os.getenv("PG_DBNAME", "uniflow")
 }
 
 #System Prompt
-SYSTEM_PROMPT = SYSTEM_PROMPT = """
-# 角色定位
-你是西安交通大学校园通知专属结构化解析助手，仅输出符合要求的合法JSON，无任何额外内容。
-
----
-## 【最高优先级】核心输出铁则
-1.  **仅返回纯JSON文本**：绝对禁止任何前置解释、后置说明、markdown代码块、```json包裹、注释、多余换行/空格，输出内容必须能直接被json.loads()解析。
-2.  **禁止编造信息**：所有字段内容必须完全来自提供的原文，原文无对应信息的字段必须使用指定兜底值，不得虚构内容。
-3.  **严格遵守JSON语法**：确保所有引号、逗号、括号完全闭合，数组/对象格式完全合法，无任何语法错误。
-
----
-## 严格JSON输出格式（必须1:1匹配结构）
-{
-    "title": "事件标题",
-    "genre": "事件类型",
-    "importance": 0,
-    "source": "发布机构",
-    "review": "一句话摘要",
-    "keywords": "#关键词1;#关键词2;#关键词3",
-    "timeline": [
-        {"节点名称": "YYYY-MM-DD HH:MM:SS"},
-        {"节点名称": "YYYY-MM-DD HH:MM:SS"}
-    ],
-    "attachment": [
-        {"附件名称": "对应完整链接"},
-        {"附件名称": "对应完整链接"}
-    ]
-}
-
----
-## 字段详细定义与强制约束
-### 3.1 title（事件标题）
-- 要求：与原通知标题完全一致，不修改、不缩写、不增减内容；
-- 兜底：原文无明确标题时，取原文第一句完整语义的句子；无任何有效内容时填"无标题"。
-
-### 3.2 genre（事件类型）
-- 要求：**必须从以下枚举值中唯一选择，禁止自定义**：
-  考试/活动/竞赛/国际/后勤/教务/其他
-- 兜底：无法明确分类时填"其他"。
-
-### 3.3 importance（重要程度）
-- 要求：仅返回0-10之间的整数，严格按以下规则评分：
-  1. 直接影响学业的（选课、考试、成绩、学籍、毕业相关）：≥8分；
-  2. 有明确截止日期的活动/竞赛：≥5分（校级≥7分，院级≥5分，级别越高分数越高）；
-  3. 无明确截止、不影响核心学业的一般性通知：4-7分；
-  4. 与在校学生无直接关联的纯告知类内容：≤4分；
-  5. 已过期的通知（按原文最晚截止时间判断）：≤2分；
-- 兜底：无法判断时填3分。
-
-### 3.4 source（发布机构）
-- 要求：**必须从以下枚举值中唯一选择，禁止自定义**：
-  教务处/党委/团委/彭康书院/文治书院/宗濂书院/启德书院/仲英书院/励志书院/崇实书院/南洋书院/数学学院/物理学院/化学学院/前沿院/机械学院/电气学院/能动学院/电信学部/人工智能学院/材料学院/人居学院/生命学院/航天学院/化工学院/仪器科学与技术学院/医学部/经金学院/金禾经济中心/管理学院/公管学院/人文学院/新媒体学院/马克思主义学院/法学院/外国语学院/体育学院/继续（网络）教育学院/国际教育学院/钱学森学院/创新创业学院/未来技术学院/西交米兰学院/其他
-- 兜底：无法明确机构时填"其他"。
-
-### 3.5 review（一句话摘要）
-- 要求：用1句话完整概括通知核心内容，严格控制在50字以内，无冗余信息；
-- 兜底：无法概括时取原文前50个字符，无有效内容时填"无有效摘要"。
-
-### 3.6 keywords（关键词）
-- 要求：
-  1. 提取3-10个与事件核心强相关的实体关键词，禁止无意义通用词；
-  2. 每个关键词以英文#开头，关键词之间用英文分号;间隔；
-  3. 关键词简洁准确，无重复、无冗余；
-- 正确示例：#选课;#2026春季;#教务处;#报名截止
-- 兜底：无法提取时填"#通知;#校园;#其他"。
-
-### 3.7 timeline（时间线）
-- 要求：
-  1. 提取原文中所有明确的时间节点，按时间从早到晚升序排列；
-  2. 时间格式严格统一为「YYYY-MM-DD HH:MM:SS」，原文无具体时分秒时填「00:00:00」；
-  3. 「节点名称」必须是描述事件动作的短语（如"报名截止""初赛开始"），禁止用时间作为节点名；
-- 正确示例：[{"报名截止": "2026-04-05 23:59:59"}, {"初赛评选": "2026-04-15 09:00:00"}]
-- 兜底：原文无明确时间节点时，返回空数组[]。
-
-### 3.8 attachment（附件列表）
-- 要求：
-  1. 提取原文中所有明确的附件名称+对应的完整访问链接，一一对应；
-  2. 附件名称必须与原文显示的文件名完全一致，链接必须保留原文提供的完整路径；
-  3. 仅提取原文真实存在的附件，禁止编造；
-- 正确示例：[{"2026春季选课操作指南.pdf": "https://jwc.xjtu.edu.cn/attachment/20260305.pdf"}, {"参赛报名表.docx": "https://jwc.xjtu.edu.cn/attachment/signup.docx"}]
-- 兜底：原文无附件、无有效链接时，返回空数组[]。
-
----
-## 【必做】最终输出自检清单
-返回前必须逐一核对，确保完全符合：
-1.  输出内容只有纯JSON，无任何其他字符、解释、代码块；
-2.  JSON语法完全合法，所有括号、引号、逗号正确闭合，无语法错误；
-3.  所有字段严格遵守上述约束，枚举值无自定义、内容无编造；
-4.  时间格式、关键词格式、附件格式完全符合要求；
-5.  无有效信息的字段已使用指定兜底值，无空值、无null。
-
-现在开始解析以下原文：
-"""
+with open(os.getenv("SYSTEM_PROMPT","system_prompt.prompt"),"r",encodind="UTF-8") as pro:
+    SYSTEM_PROMPT = pro.read()
 
 #Rate Limit logic config
 req_timestamps = deque()
@@ -184,49 +94,61 @@ def check_rate_limit(tokens):
     req_timestamps.append(now)
     token_timestamps.append((now, tokens))
 
-def call_qwen(content: str) -> dict:
-    """调用Qwen API，返回解析后的结构化字典"""
-    try:
-        check_rate_limit(len(content) + 500)
-        
-        payload = {
-            "model": QWEN_MODEL,
-            "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": f"提取以下内容：\n\n{content}"}
-            ],
-            "temperature": 0.0,
-            "stream": False
-        }
-        
-        headers = {
-            "Authorization": f"Bearer {QWEN_API_KEY}",
-            "Content-Type": "application/json"
-        }
-        
-        response = requests.post(QWEN_API_URL, json=payload, headers=headers)
-        response.raise_for_status()
-        
-        result_json = response.json()["choices"][0]["message"]["content"]
-        # print(f"DEBUG LLM RETURN:\n{result_json}")
-        
-        parsed = json.loads(result_json)
-        return {
-            "title": parsed.get("title", ""),
-            "genre": parsed.get("genre", "其他"),
-            "importance": parsed.get("importance", 0),
-            "source": parsed.get("source", "其他"),
-            "review": parsed.get("review", ""),
-            "keywords": parsed.get("keywords", ""),
-            "timeline": parsed.get("timeline", []),
-            "attachment": parsed.get("attachment", [])
-        }
-    except json.JSONDecodeError:
-        print("JSON 解析失败，返回默认结构")
-        return {"title": "", "genre": "其他", "importance": 0, "source": "其他", "review": "", "keywords": "", "timeline": [], "attachment": [], "error": "JSON解析失败"}
-    except Exception as e:
-        print(f"Qwen API调用失败：{e}")
-        return {"title": "", "genre": "其他", "importance": 0, "source": "其他", "review": "", "keywords": "", "timeline": [], "attachment": [], "error": str(e)}
+def call_qwen(content: str, ori_title: str = "", link: str = "", metadata_time: str = "", max_retries: int = 3) -> dict:
+    """调用Qwen API，返回解析后的结构化字典，带重试机制"""
+    for attempt in range(max_retries):
+        try:
+            check_rate_limit(len(content) + 500)
+            
+            # 将相关元数据也一并传给模型，提供更好的判定参考
+            user_msg = (
+                f"参考标题：{ori_title}\n"
+                f"原文链接：{link}\n"
+                f"参考时间（发布时间）：{metadata_time}\n\n"
+                f"提取以下正文内容：\n\n{content}"
+            )
+            
+            payload = {
+                "model": QWEN_MODEL,
+                "messages": [
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": user_msg}
+                ],
+                "temperature": 0.0,
+                "stream": False
+            }
+            
+            headers = {
+                "Authorization": f"Bearer {QWEN_API_KEY}",
+                "Content-Type": "application/json"
+            }
+            
+            response = requests.post(QWEN_API_URL, json=payload, headers=headers)
+            response.raise_for_status()
+            
+            result_json = response.json()["choices"][0]["message"]["content"]
+            # print(f"DEBUG LLM RETURN:\n{result_json}")
+            
+            parsed = json.loads(result_json)
+            return {
+                "title": parsed.get("title", ""),
+                "genre": parsed.get("genre", "其他"),
+                "importance": parsed.get("importance", 0),
+                "source": parsed.get("source", "其他"),
+                "review": parsed.get("review", ""),
+                "keywords": parsed.get("keywords", ""),
+                "timeline": parsed.get("timeline", []),
+                "attachment": parsed.get("attachment", [])
+            }
+        except json.JSONDecodeError as e:
+            print(f"JSON 解析失败 (尝试 {attempt + 1}/{max_retries}): {e}")
+            if attempt == max_retries - 1:
+                return {"title": "", "genre": "其他", "importance": 0, "source": "其他", "review": "", "keywords": "", "timeline": [], "attachment": [], "error": "JSON解析失败"}
+        except Exception as e:
+            print(f"Qwen API调用失败 (尝试 {attempt + 1}/{max_retries}): {e}")
+            if attempt == max_retries - 1:
+                return {"title": "", "genre": "其他", "importance": 0, "source": "其他", "review": "", "keywords": "", "timeline": [], "attachment": [], "error": str(e)}
+            time.sleep(1) # 重试前稍作等待
 
 def process_and_store(fetch_result, pg_conn, pg_cur):
     """提取的通用处理和入库逻辑"""
@@ -255,13 +177,35 @@ def process_and_store(fetch_result, pg_conn, pg_cur):
             print(f"  -> 已存在数据库中，跳过")
             continue
 
-        #Skip if empty
+        # Skip if empty
         if not titles:
             print(f"  -> 第{idx+1}条内容为空，跳过")
             continue
 
-        #Resolve timeline
-        qwen_data = call_qwen(content)
+        # 将标题、链接、抓取时间传给模型作为上下文
+        qwen_data = call_qwen(content, ori_title=ori_title, link=link, metadata_time=str(fetch_time))
+
+        if "error" in qwen_data:
+            print(f"  -> 大模型解析失败，跳过入库：{qwen_data['error']}")
+            continue
+
+        # 校验并清洗 timeline 时间格式
+        valid_timeline = []
+        if isinstance(qwen_data.get("timeline"), list):
+            for item in qwen_data["timeline"]:
+                if not isinstance(item, dict):
+                    continue
+                cleaned_item = {}
+                for k, v in item.items():
+                    try:
+                        # 查验时间格式是否严格复合 "%Y-%m-%d %H:%M:%S"，且为合法真实时间
+                        datetime.strptime(str(v).strip(), "%Y-%m-%d %H:%M:%S")
+                        cleaned_item[k] = str(v).strip()
+                    except ValueError:
+                        print(f"  -> [警告] 时间格式非法，自动剔除该节点: '{k}': '{v}'")
+                if cleaned_item:
+                    valid_timeline.append(cleaned_item)
+        qwen_data["timeline"] = valid_timeline
 
         #Gen uuid
         event_uuid = str(uuid.uuid4())
@@ -287,8 +231,8 @@ def process_and_store(fetch_result, pg_conn, pg_cur):
         try:
             pg_cur.execute("""
                 INSERT INTO events (
-                    uuid, channel, fetch_time, title, genre, importance, source, review, keywords, link, timeline, attachment, original_text
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+                    uuid, channel, fetch_time, title, genre, importance, source, review, link, keywords, timeline, attachment, original_text
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
             """, insert_data)
             pg_conn.commit()
             print(f"  -> 第{idx+1}条入库成功 | UUID：{event_uuid}")

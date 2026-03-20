@@ -5,10 +5,10 @@
 | ----- | ----------- | ----------- | ----------- |
 | - [x] [Backend] Html fetcher | 爬取原生Html内容 | [README.MD](./backend/fetch/README.MD) | jung233 Jody Thusci  |
 | - [x] [Backend] AI processor | 转发原始文本至Qwen2.5-7B-Instruct进行结构化处理后存入服务端Postgres数据库 | [README.md](./backend/store/README.md) | Thusci |
-| - [ ] [Backend] Notification api | 基于 FastAPI面向前端和小程序提供的 RESTful 接口。 | [readme.md](./backend/api/README.md) | Jody |
+| - [x] [Backend] Notification api | 基于 FastAPI面向前端和小程序提供的 RESTful 接口。 | [readme.md](./backend/api/README.md) | Jody |
 | - [ ] [Backend] CalDAV Service | 基于CalDAV实现的日历推送 | [PENDING] | [PENDING] |
-| - [ ] [Frontend] Android frontend | 事件日历与待办功能 | [PENDING] | [PENDING] |
-| - [ ] [Frontend] iOS frontend | 事件日历与待办功能 | [PENDING] | [PENDING] |
+| - [x] [Frontend] Android frontend | 事件日历与待办功能 | [README.md](./frontend/uniflow_front/README.md) | Thusci |
+| - [x] [Frontend] iOS frontend | 事件日历与待办功能 | [README.md](./frontend/uniflow_front/README.md) | Thusci |
 | - [x] [Frontend & Backend] Feed management site | 管理爬取/推送流程 | [Webmin] | [Webmin] |
 
 ## [支持的网站](./doi.md)

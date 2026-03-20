@@ -6,6 +6,7 @@ from pydantic import BaseModel
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
+from dotenv import load_dotenv
 
 app = FastAPI(title="UniFlow API", description="Server API for UniFlow campus events aggregation")
 
@@ -16,13 +17,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+load_dotenv("../../.env")
 # Reuse PG configuration from the store or define it via ENV
 PG_CONFIG = {
     "host": os.getenv("PG_HOST", "127.0.0.1"),
     "port": int(os.getenv("PG_PORT", 5432)),
     "user": os.getenv("PG_USER", "test"),
-    "password": os.getenv("PG_PASSWORD", "passwd"),
+    "password": os.getenv("PG_PASSWD", "passwd"),
     "dbname": os.getenv("PG_DBNAME", "uniflow")
 }
 

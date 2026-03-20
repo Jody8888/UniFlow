@@ -2,10 +2,11 @@
 
 class AppConstants {
   static const String appName = 'UniFlow 校园通知';
-  static const String apiBaseUrl = 'https://example.com';
-  static const String noticePath = '/api/notices';
-  static const bool useMockData = true;
+  static const String apiBaseUrl = 'http://127.0.0.1:8000';
+  static const String noticePath = '/api/events';
+  static const bool useMockData = false;
   static const int pageSize = 6;
+  static const String apiDefaultSortBy = 'fetch_time';
 
   static const List<String> noticeGenres = <String>[
     '考试',
@@ -152,6 +153,13 @@ class AppConstants {
   };
 
   static const List<int> updateFrequencyOptions = <int>[-1, 5, 15, 30, 60];
+
+  static const Map<String, String> sourceAliases = <String, String>{
+    'dean.xjtu.edu.cn': '教务处',
+    'dw.xjtu.edu.cn': '党委',
+    'youth.xjtu.edu.cn': '团委',
+    'international.xjtu.edu.cn': '国际教育学院',
+  };
 }
 
 class AppRoutes {

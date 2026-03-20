@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'l10n/app_localizations.dart';
 import 'models/notice_model.dart';
 import 'pages/home/notice_list_page.dart';
-import 'pages/notice/notice_detail_page.dart';
+import 'pages/notice/notice_detail_page_v2.dart';
 import 'pages/setting/setting_page.dart';
 import 'pages/user/user_info_page.dart';
 import 'providers/notice_provider.dart';

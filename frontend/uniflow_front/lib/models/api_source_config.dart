@@ -18,7 +18,7 @@ class ApiSourceConfig {
       id: 'mock-default',
       name: '内置 Mock 数据',
       baseUrl: 'https://example.com',
-      noticePath: '/api/notices',
+      noticePath: '/api/events',
       useMockData: true,
     );
   }
@@ -34,7 +34,7 @@ class ApiSourceConfig {
       baseUrl: json['baseUrl']?.toString().trim() ?? '',
       noticePath: json['noticePath']?.toString().trim().isNotEmpty == true
           ? json['noticePath'].toString().trim()
-          : '/api/notices',
+          : '/api/events',
       useMockData: json['useMockData'] == true,
     );
   }

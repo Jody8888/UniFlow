@@ -441,69 +441,79 @@ class _NoticeListPageState extends State<NoticeListPage>
             child: Text(l10n.message(noticeProvider.errorMessage ?? ''), style: Theme.of(context).textTheme.bodySmall),
           ),
         Expanded(
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 280),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
-            child: Builder(
-              key: ValueKey<String>('${noticeProvider.isLoading}-${noticeProvider.errorMessage}-${notices.length}-$currentSortMode'),
-              builder: (listContext) {
-                if (noticeProvider.isLoading && notices.isEmpty) {
-                  return LoadingWidget(
-                    message: l10n.loadingNotices,
-                    onRetry: () => noticeProvider.refreshNotices(showLoading: true),
-                  );
-                }
-                if (noticeProvider.errorMessage != null && notices.isEmpty) {
-                  return LoadingWidget(
-                    message: noticeProvider.errorMessage ?? l10n.loadFailed,
-                    isError: true,
-                    onRetry: () => noticeProvider.refreshNotices(showLoading: true),
-                  );
-                }
-                if (notices.isEmpty) {
-                  return EmptyWidget(
-                    message: userProvider.preference.dislikedGenres.isEmpty ? l10n.noNotice : l10n.allFiltered,
-                  );
-                }
-                return SmartRefresher(
-                  controller: _refreshController,
-                  enablePullDown: true,
-                  enablePullUp: noticeProvider.hasMore,
-                  header: const WaterDropHeader(),
-                  footer: const ClassicFooter(loadStyle: LoadStyle.ShowWhenLoading),
-                  onRefresh: _handleRefresh,
-                  onLoading: _handleLoading,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(AppSpacing.medium),
-                    itemCount: notices.length,
-                    itemBuilder: (context, index) {
-                      final notice = notices[index];
-                      final isRead = userProvider.preference.readNoticeIds.contains(notice.id);
-                      final isFavorite = userProvider.preference.favoriteNoticeIds.contains(notice.id);
-                      return NoticeCard(
-                        key: ValueKey<String>('${notice.id}-$isRead'),
-                        notice: notice,
-                        isRead: isRead,
-                        isFavorite: isFavorite,
-                        onTap: () => _openNoticeDetail(notice),
-                        onMarkDislike: () => _openDislikeDialog(notice.genre),
-                        onToggleFavorite: () => _toggleFavorite(notice),
-                        selectionMode: _selectionMode,
-                        selected: _selectedNoticeIds.contains(notice.id),
-                        onSelectionToggle: () => _selectionMode
-                            ? _toggleSelection(notice.id)
-                            : _enterSelection(notice.id),
-                      );
-                    },
-                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.medium),
-                  ),
-                );
-              },
-            ),
+          child: _buildNoticeContent(
+            l10n: l10n,
+            noticeProvider: noticeProvider,
+            userProvider: userProvider,
+            notices: notices,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildNoticeContent({
+    required AppLocalizations l10n,
+    required NoticeProvider noticeProvider,
+    required UserProvider userProvider,
+    required List<NoticeModel> notices,
+  }) {
+    if (noticeProvider.isLoading && notices.isEmpty) {
+      return LoadingWidget(
+        message: l10n.loadingNotices,
+        onRetry: () => noticeProvider.refreshNotices(showLoading: true),
+      );
+    }
+    if (noticeProvider.errorMessage != null && notices.isEmpty) {
+      return LoadingWidget(
+        message: noticeProvider.errorMessage ?? l10n.loadFailed,
+        isError: true,
+        onRetry: () => noticeProvider.refreshNotices(showLoading: true),
+      );
+    }
+    if (notices.isEmpty) {
+      return EmptyWidget(
+        message: userProvider.preference.dislikedGenres.isEmpty
+            ? l10n.noNotice
+            : l10n.allFiltered,
+      );
+    }
+
+    return SmartRefresher(
+      controller: _refreshController,
+      enablePullDown: true,
+      enablePullUp: noticeProvider.hasMore,
+      header: const WaterDropHeader(),
+      footer: const ClassicFooter(loadStyle: LoadStyle.ShowWhenLoading),
+      onRefresh: _handleRefresh,
+      onLoading: _handleLoading,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(AppSpacing.medium),
+        itemCount: notices.length,
+        itemBuilder: (context, index) {
+          final notice = notices[index];
+          final isRead =
+              userProvider.preference.readNoticeIds.contains(notice.id);
+          final isFavorite =
+              userProvider.preference.favoriteNoticeIds.contains(notice.id);
+          return NoticeCard(
+            key: ValueKey<String>('${notice.id}-$isRead'),
+            notice: notice,
+            isRead: isRead,
+            isFavorite: isFavorite,
+            onTap: () => _openNoticeDetail(notice),
+            onMarkDislike: () => _openDislikeDialog(notice.genre),
+            onToggleFavorite: () => _toggleFavorite(notice),
+            selectionMode: _selectionMode,
+            selected: _selectedNoticeIds.contains(notice.id),
+            onSelectionToggle: () => _selectionMode
+                ? _toggleSelection(notice.id)
+                : _enterSelection(notice.id),
+          );
+        },
+        separatorBuilder: (_, __) =>
+            const SizedBox(height: AppSpacing.medium),
+      ),
     );
   }
 

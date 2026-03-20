@@ -43,7 +43,8 @@ class ApiService {
         _activeSource.noticePath,
         queryParameters: <String, dynamic>{
           'page': page,
-          'pageSize': pageSize,
+          'limit': pageSize,
+          'sort_by': AppConstants.apiDefaultSortBy,
         },
       );
       final rawList = _extractList(response.data);
@@ -52,6 +53,29 @@ class ApiService {
       throw ApiException(_dioErrorMessage(error));
     } catch (error) {
       throw ApiException('通知接口解析失败：$error');
+    }
+  }
+
+  Future<NoticeModel> fetchNoticeDetail(String eventId) async {
+    if (_activeSource.useMockData) {
+      final matched = _mockNoticeJson.where((item) {
+        final id = item['uuid']?.toString() ?? item['id']?.toString() ?? '';
+        return id == eventId;
+      }).firstOrNull;
+      if (matched == null) {
+        throw ApiException('通知不存在');
+      }
+      return NoticeModel.fromJson(matched);
+    }
+
+    try {
+      final response = await _dio.get<dynamic>('${_activeSource.noticePath}/$eventId');
+      final rawMap = _extractDetail(response.data);
+      return NoticeModel.fromJson(rawMap);
+    } on DioException catch (error) {
+      throw ApiException(_dioErrorMessage(error));
+    } catch (error) {
+      throw ApiException('通知详情解析失败：$error');
     }
   }
 
@@ -78,6 +102,10 @@ class ApiService {
       return payload.whereType<Map>().map(_toMap).toList();
     }
     if (payload is Map<String, dynamic>) {
+      final success = payload['success'];
+      if (success is bool && !success) {
+        return <Map<String, dynamic>>[];
+      }
       final directList = payload['data'];
       if (directList is List) {
         return directList.whereType<Map>().map(_toMap).toList();
@@ -88,6 +116,10 @@ class ApiService {
       }
       final nestedData = payload['data'];
       if (nestedData is Map<String, dynamic>) {
+        final items = nestedData['items'];
+        if (items is List) {
+          return items.whereType<Map>().map(_toMap).toList();
+        }
         final innerList = nestedData['list'];
         if (innerList is List) {
           return innerList.whereType<Map>().map(_toMap).toList();
@@ -99,6 +131,17 @@ class ApiService {
 
   Map<String, dynamic> _toMap(Map raw) {
     return raw.map((key, value) => MapEntry(key.toString(), value));
+  }
+
+  Map<String, dynamic> _extractDetail(dynamic payload) {
+    if (payload is Map<String, dynamic>) {
+      final data = payload['data'];
+      if (data is Map) {
+        return _toMap(data);
+      }
+      return payload;
+    }
+    throw const FormatException('invalid detail payload');
   }
 
   String _dioErrorMessage(DioException error) {
@@ -121,6 +164,10 @@ class ApiService {
         return '证书校验失败';
     }
   }
+}
+
+extension _FirstOrNullExtension<T> on Iterable<T> {
+  T? get firstOrNull => isEmpty ? null : first;
 }
 
 class ApiException implements Exception {

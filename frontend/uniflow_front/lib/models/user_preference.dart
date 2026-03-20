@@ -63,13 +63,13 @@ class UserPreference {
       },
       updateFrequencyMinutes: -1,
       apiSources: const <ApiSourceConfig>[ApiSourceConfig(
-        id: 'mock-default',
-        name: '内置 Mock 数据',
-        baseUrl: 'https://example.com',
-        noticePath: '/api/notices',
-        useMockData: true,
+        id: 'fastapi-default',
+        name: '本地 FastAPI',
+        baseUrl: 'http://127.0.0.1:8000',
+        noticePath: '/api/events',
+        useMockData: false,
       )],
-      activeApiSourceId: 'mock-default',
+      activeApiSourceId: 'fastapi-default',
       languageCode: AppLanguageOptions.system,
       homeSortMode: AppSortModes.personalized,
       themeMode: AppThemeModes.system,
@@ -186,11 +186,11 @@ class UserPreference {
   static List<ApiSourceConfig> _normalizeSources(List<ApiSourceConfig>? sources) {
     if (sources == null || sources.isEmpty) {
       return const <ApiSourceConfig>[ApiSourceConfig(
-        id: 'mock-default',
-        name: '内置 Mock 数据',
-        baseUrl: 'https://example.com',
-        noticePath: '/api/notices',
-        useMockData: true,
+        id: 'fastapi-default',
+        name: '本地 FastAPI',
+        baseUrl: 'http://127.0.0.1:8000',
+        noticePath: '/api/events',
+        useMockData: false,
       )];
     }
     return sources;
@@ -232,11 +232,11 @@ class UserPreference {
   static List<ApiSourceConfig> _readSources(dynamic value) {
     if (value is! List) {
       return const <ApiSourceConfig>[ApiSourceConfig(
-        id: 'mock-default',
-        name: '内置 Mock 数据',
-        baseUrl: 'https://example.com',
-        noticePath: '/api/notices',
-        useMockData: true,
+        id: 'fastapi-default',
+        name: '本地 FastAPI',
+        baseUrl: 'http://127.0.0.1:8000',
+        noticePath: '/api/events',
+        useMockData: false,
       )];
     }
     final items = value
@@ -247,11 +247,11 @@ class UserPreference {
         .toList();
     return items.isEmpty
         ? const <ApiSourceConfig>[ApiSourceConfig(
-            id: 'mock-default',
-            name: '内置 Mock 数据',
-            baseUrl: 'https://example.com',
-            noticePath: '/api/notices',
-            useMockData: true,
+            id: 'fastapi-default',
+            name: '本地 FastAPI',
+            baseUrl: 'http://127.0.0.1:8000',
+            noticePath: '/api/events',
+            useMockData: false,
           )]
         : items;
   }

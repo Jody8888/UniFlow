@@ -45,7 +45,9 @@ class NoticeModel {
     final fetchTimeValue =
         _readString(json['fetch_time']) ?? DateTime.now().toIso8601String();
     final genreValue = _readString(json['genre']);
-    final sourceValue = _readString(json['source']);
+    final sourceValue = _normalizeSource(
+      _readString(json['source']) ?? _readString(json['channel']),
+    );
     final timelineList = _normalizeMapList(json['timeline']);
     final normalizedTimeline = _sortTimeline(
       timelineList.isEmpty
@@ -62,7 +64,7 @@ class NoticeModel {
       title: _normalizeTitle(_readString(json['title'])),
       genre: AppConstants.noticeGenres.contains(genreValue) ? genreValue! : '其他',
       importance: _normalizeImportance(json['importance']),
-      source: AppConstants.noticeSources.contains(sourceValue) ? sourceValue! : '其他',
+      source: sourceValue,
       review: _normalizeReview(
         review: _readString(json['review']),
         originalText: _readString(json['original_text']),
@@ -127,6 +129,17 @@ class NoticeModel {
     return trimmed.isEmpty ? '#通知;#校园;#其他' : trimmed;
   }
 
+  static String _normalizeSource(String? source) {
+    final trimmed = source?.trim() ?? '';
+    if (trimmed.isEmpty) {
+      return '其他';
+    }
+    if (AppConstants.noticeSources.contains(trimmed)) {
+      return trimmed;
+    }
+    return AppConstants.sourceAliases[trimmed] ?? trimmed;
+  }
+
   static String? _readString(dynamic value) {
     if (value == null) {
       return null;
@@ -143,6 +156,13 @@ class NoticeModel {
     return value
         .whereType<Map>()
         .map((item) {
+          if (item.containsKey('time') && item.containsKey('event')) {
+            final eventName = item['event']?.toString().trim() ?? '';
+            final eventTime = item['time']?.toString().trim() ?? '';
+            if (eventName.isNotEmpty && eventTime.isNotEmpty) {
+              return <String, String>{eventName: eventTime};
+            }
+          }
           final result = <String, String>{};
           for (final entry in item.entries) {
             final key = entry.key.toString().trim();

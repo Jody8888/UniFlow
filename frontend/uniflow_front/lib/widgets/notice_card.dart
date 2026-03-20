@@ -34,7 +34,9 @@ class NoticeCard extends StatelessWidget {
     final l10n = context.l10n;
     final isExpired = AppDateUtils.isExpired(notice);
     final publishTime = AppDateUtils.extractPublishedTime(notice);
+    final publishAgo = AppDateUtils.formatTimeAgo(publishTime);
     final colorScheme = Theme.of(context).colorScheme;
+    final importanceStyle = _importanceStyle(notice.importance);
     final titleColor = isRead
         ? colorScheme.onSurfaceVariant
         : colorScheme.onSurface;
@@ -58,6 +60,12 @@ class NoticeCard extends StatelessWidget {
         duration: const Duration(milliseconds: 260),
         curve: Curves.easeOutCubic,
         child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.large),
+            side: BorderSide(
+              color: importanceStyle.accentColor.withValues(alpha: 0.28),
+            ),
+          ),
           color: isRead
               ? Theme.of(context).brightness == Brightness.dark
                   ? colorScheme.surfaceContainerHigh
@@ -75,6 +83,24 @@ class NoticeCard extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Container(
+                        width: 10,
+                        height: 10,
+                        margin: const EdgeInsets.only(top: 6),
+                        decoration: BoxDecoration(
+                          color: importanceStyle.accentColor,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: importanceStyle.accentColor.withValues(
+                                alpha: 0.32,
+                              ),
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.small),
                       Expanded(
                         child: Text(
                           notice.title,
@@ -137,7 +163,7 @@ class NoticeCard extends StatelessWidget {
                       ),
                       _InfoChip(
                         label: l10n.importance('${notice.importance}'),
-                        backgroundColor: AppColors.importanceChip,
+                        backgroundColor: importanceStyle.backgroundColor,
                       ),
                       if (isExpired)
                         _InfoChip(
@@ -163,7 +189,7 @@ class NoticeCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          AppDateUtils.formatDateTime(publishTime),
+                          '${AppDateUtils.formatDateTime(publishTime)} · $publishAgo',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
@@ -177,6 +203,35 @@ class NoticeCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ImportanceStyle {
+  const _ImportanceStyle({
+    required this.accentColor,
+    required this.backgroundColor,
+  });
+
+  final Color accentColor;
+  final Color backgroundColor;
+}
+
+_ImportanceStyle _importanceStyle(int importance) {
+  if (importance >= 8) {
+    return const _ImportanceStyle(
+      accentColor: Color(0xFFD92D20),
+      backgroundColor: Color(0xFFFFE0DB),
+    );
+  }
+  if (importance >= 5) {
+    return const _ImportanceStyle(
+      accentColor: Color(0xFFEAAA08),
+      backgroundColor: Color(0xFFFFF4CC),
+    );
+  }
+  return const _ImportanceStyle(
+    accentColor: Color(0xFF16A34A),
+    backgroundColor: Color(0xFFDCFCE7),
+  );
 }
 
 class _InfoChip extends StatelessWidget {

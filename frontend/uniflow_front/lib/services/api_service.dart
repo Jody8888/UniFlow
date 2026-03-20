@@ -33,10 +33,13 @@ class ApiService {
   Future<List<NoticeModel>> fetchNotices({
     required int page,
     required int pageSize,
+    required String sortMode,
   }) async {
     if (_activeSource.useMockData) {
       return _fetchMockNotices(page: page, pageSize: pageSize);
     }
+
+    final sortBy = AppSortModes.apiSortByOf(sortMode);
 
     try {
       final response = await _dio.get<dynamic>(
@@ -44,7 +47,7 @@ class ApiService {
         queryParameters: <String, dynamic>{
           'page': page,
           'limit': pageSize,
-          'sort_by': AppConstants.apiDefaultSortBy,
+          'sort_by': sortBy,
         },
       );
       final rawList = _extractList(response.data);

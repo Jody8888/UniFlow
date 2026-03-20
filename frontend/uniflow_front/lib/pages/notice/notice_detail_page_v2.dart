@@ -75,8 +75,13 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
 
         final isExpired = AppDateUtils.isExpired(currentNotice);
         final publishedTime = AppDateUtils.extractPublishedTime(currentNotice);
+        final publishedAgo = AppDateUtils.formatTimeAgo(publishedTime);
         final sortedTimeline =
             AppDateUtils.sortTimeline(currentNotice.timeline);
+        final sanitizedBody = _sanitizeNoticeBody(currentNotice.originalText);
+        final plainBody = _extractPlainText(sanitizedBody);
+        final shouldUsePlainTextBody =
+            !_containsMeaningfulHtml(sanitizedBody) || _looksLikeOfficeDump(sanitizedBody);
 
         return Scaffold(
           appBar: AppBar(
@@ -94,18 +99,19 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
                 ),
             ],
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.medium),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          body: SelectionArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpacing.medium),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.large),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        SelectableText(
                           currentNotice.title,
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
@@ -141,15 +147,15 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
                           ],
                         ),
                         const SizedBox(height: AppSpacing.medium),
-                        Text(l10n.summary(currentNotice.review)),
+                        SelectableText(l10n.summary(currentNotice.review)),
                         const SizedBox(height: AppSpacing.small),
-                        Text(
+                        SelectableText(
                           l10n.publishedAt(
-                            AppDateUtils.formatDateTime(publishedTime),
+                            '${AppDateUtils.formatDateTime(publishedTime)} · $publishedAgo',
                           ),
                         ),
                         const SizedBox(height: AppSpacing.small),
-                        Text(
+                        SelectableText(
                           l10n.fetchedAt(
                             AppDateUtils.formatDateTime(
                               AppDateUtils.parseDateTime(
@@ -159,7 +165,7 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
                           ),
                         ),
                         const SizedBox(height: AppSpacing.small),
-                        Text(l10n.keywords(currentNotice.keywords)),
+                        SelectableText(l10n.keywords(currentNotice.keywords)),
                       ],
                     ),
                   ),
@@ -173,18 +179,29 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.medium),
-                    child: Html(
-                      data: currentNotice.originalText.trim().isEmpty
-                          ? l10n.emptyBodyHtml
-                          : currentNotice.originalText,
-                      onLinkTap: (url, _, __) {
-                        _openUrl(
-                          context: context,
-                          url: url ?? '',
-                          errorMessage: l10n.openBodyLinkFailed,
-                        );
-                      },
-                    ),
+                    child: shouldUsePlainTextBody
+                        ? SelectableText(
+                            plainBody.isEmpty ? _extractPlainText(l10n.emptyBodyHtml) : plainBody,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          )
+                        : Html(
+                            data: sanitizedBody.trim().isEmpty
+                                ? l10n.emptyBodyHtml
+                                : sanitizedBody,
+                            onLinkTap: (url, _, __) {
+                              _openUrl(
+                                context: context,
+                                url: url ?? '',
+                                errorMessage: l10n.openBodyLinkFailed,
+                              );
+                            },
+                            style: {
+                              'body': Style(
+                                margin: Margins.zero,
+                                padding: HtmlPaddings.zero,
+                              ),
+                            },
+                          ),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.large),
@@ -230,7 +247,7 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
                                   crossAxisAlignment:
                                       CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    SelectableText(
                                       entry.key,
                                       style: Theme.of(context)
                                           .textTheme
@@ -242,7 +259,7 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
                                           ),
                                     ),
                                     const SizedBox(height: 4),
-                                    Text(
+                                    SelectableText(
                                       entry.value,
                                       style: Theme.of(context)
                                           .textTheme
@@ -280,8 +297,8 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
                               return ListTile(
                                 contentPadding: EdgeInsets.zero,
                                 leading: const Icon(Icons.attach_file),
-                                title: Text(entry.key),
-                                subtitle: Text(entry.value),
+                                title: SelectableText(entry.key),
+                                subtitle: SelectableText(entry.value),
                                 onTap: () => _openUrl(
                                   context: context,
                                   url: entry.value,
@@ -292,7 +309,8 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
                           ),
                   ),
                 ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -315,7 +333,60 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
       return false;
     }
     final firstKey = timeline.first.entries.first.key;
-    return firstKey.contains('发布');
+    return firstKey.contains('发布') || firstKey.contains('鍙戝竷');
+  }
+
+  String _sanitizeNoticeBody(String raw) {
+    var result = raw.trim();
+    if (result.isEmpty) {
+      return result;
+    }
+
+    result = result.replaceAll(
+      RegExp(r'<style[^>]*>[\s\S]*?</style>', caseSensitive: false),
+      '',
+    );
+    result = result.replaceAll(
+      RegExp(r'<script[^>]*>[\s\S]*?</script>', caseSensitive: false),
+      '',
+    );
+    result = result.replaceAll(
+      RegExp(r'@font-face\s*\{[^}]*\}', caseSensitive: false),
+      '',
+    );
+    result = result.replaceAll(
+      RegExp(r'[.#]?[A-Za-z0-9_\-\u4e00-\u9fa5]+\s*\{[^}]*\}'),
+      '',
+    );
+    result = result.replaceAll(
+      RegExp(r'mso-[^:;]+:[^;"]+;?', caseSensitive: false),
+      '',
+    );
+    result = result.replaceAll(
+      RegExp(r'<o:p>\s*</o:p>', caseSensitive: false),
+      '',
+    );
+    return result.trim();
+  }
+
+  String _extractPlainText(String raw) {
+    return raw
+        .replaceAll(RegExp(r'<[^>]*>'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
+  bool _containsMeaningfulHtml(String raw) {
+    return RegExp(r'<(p|div|br|span|a|table|ul|ol|li|h[1-6])\b', caseSensitive: false)
+        .hasMatch(raw);
+  }
+
+  bool _looksLikeOfficeDump(String raw) {
+    final lower = raw.toLowerCase();
+    return lower.contains('@font-face') ||
+        lower.contains('mso-') ||
+        lower.contains('times new roman') ||
+        lower.contains('section0');
   }
 
   Widget _buildTag(

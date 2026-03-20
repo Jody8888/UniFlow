@@ -65,7 +65,7 @@ class UserPreference {
       apiSources: const <ApiSourceConfig>[ApiSourceConfig(
         id: 'fastapi-default',
         name: '本地 FastAPI',
-        baseUrl: 'http://127.0.0.1:8000',
+        baseUrl: 'http://127.0.0.1:8888',
         noticePath: '/api/events',
         useMockData: false,
       )],
@@ -188,7 +188,7 @@ class UserPreference {
       return const <ApiSourceConfig>[ApiSourceConfig(
         id: 'fastapi-default',
         name: '本地 FastAPI',
-        baseUrl: 'http://127.0.0.1:8000',
+        baseUrl: 'http://127.0.0.1:8888',
         noticePath: '/api/events',
         useMockData: false,
       )];
@@ -234,7 +234,7 @@ class UserPreference {
       return const <ApiSourceConfig>[ApiSourceConfig(
         id: 'fastapi-default',
         name: '本地 FastAPI',
-        baseUrl: 'http://127.0.0.1:8000',
+        baseUrl: 'http://127.0.0.1:8888',
         noticePath: '/api/events',
         useMockData: false,
       )];
@@ -249,7 +249,7 @@ class UserPreference {
         ? const <ApiSourceConfig>[ApiSourceConfig(
             id: 'fastapi-default',
             name: '本地 FastAPI',
-            baseUrl: 'http://127.0.0.1:8000',
+            baseUrl: 'http://127.0.0.1:8888',
             noticePath: '/api/events',
             useMockData: false,
           )]

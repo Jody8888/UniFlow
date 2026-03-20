@@ -136,6 +136,7 @@ class _NoticeListPageState extends State<NoticeListPage>
   Future<void> _updateSortMode(String mode) async {
     final l10n = context.l10n;
     await context.read<UserProvider>().updateHomeSortMode(mode);
+    await context.read<NoticeProvider>().refreshNotices();
     if (!mounted) {
       return;
     }

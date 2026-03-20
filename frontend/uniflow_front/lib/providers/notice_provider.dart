@@ -93,6 +93,7 @@ class NoticeProvider extends ChangeNotifier {
       final response = await _apiService.fetchNotices(
         page: 1,
         pageSize: AppConstants.pageSize,
+        sortMode: _preference.homeSortMode,
       );
       _currentPage = 1;
       _hasMore = response.length >= AppConstants.pageSize;
@@ -132,6 +133,7 @@ class NoticeProvider extends ChangeNotifier {
       final response = await _apiService.fetchNotices(
         page: nextPage,
         pageSize: AppConstants.pageSize,
+        sortMode: _preference.homeSortMode,
       );
       if (response.isEmpty) {
         _hasMore = false;

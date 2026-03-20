@@ -54,6 +54,31 @@ class AppDateUtils {
     return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
   }
 
+  static String formatTimeAgo(DateTime? dateTime) {
+    if (dateTime == null) {
+      return '未知时间';
+    }
+
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+    if (difference.inSeconds < 60) {
+      return '刚刚';
+    }
+    if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}分钟前';
+    }
+    if (difference.inHours < 24) {
+      return '${difference.inHours}小时前';
+    }
+    if (difference.inDays < 30) {
+      return '${difference.inDays}天前';
+    }
+    if (difference.inDays < 365) {
+      return '${(difference.inDays / 30).floor()}个月前';
+    }
+    return '${(difference.inDays / 365).floor()}年前';
+  }
+
   static List<Map<String, String>> sortTimeline(List<Map<String, String>> timeline) {
     final copied = List<Map<String, String>>.from(timeline);
     copied.sort((left, right) {

@@ -2,11 +2,11 @@
 
 class AppConstants {
   static const String appName = 'UniFlow 校园通知';
-  static const String apiBaseUrl = 'http://127.0.0.1:8000';
+  static const String apiBaseUrl = 'http://127.0.0.1:8888';
   static const String noticePath = '/api/events';
   static const bool useMockData = false;
-  static const int pageSize = 6;
-  static const String apiDefaultSortBy = 'fetch_time';
+  static const int pageSize = 30;
+  static const String apiDefaultSortBy = 'trending';
 
   static const List<String> noticeGenres = <String>[
     '考试',
@@ -187,6 +187,20 @@ class AppSortModes {
     importance,
     deadline,
   ];
+
+  static String apiSortByOf(String value) {
+    switch (value) {
+      case latest:
+        return 'timeline_date';
+      case importance:
+        return 'importance_time';
+      case deadline:
+        return 'timeline_date';
+      case personalized:
+      default:
+        return AppConstants.apiDefaultSortBy;
+    }
+  }
 
   static String labelOf(String value) {
     switch (value) {

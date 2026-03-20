@@ -125,7 +125,9 @@ class TimelineCalendar extends StatelessWidget {
                         return Card(
                           child: ListTile(
                             title: Text(notice.title, maxLines: 2),
-                            subtitle: Text(notice.source),
+                            subtitle: Text(
+                              '${notice.source} · ${AppDateUtils.formatTimeAgo(AppDateUtils.extractPublishedTime(notice))}',
+                            ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 
 import '../utils/constants.dart';
@@ -60,12 +60,9 @@ class NoticeModel {
           ? UniqueKey().toString()
           : idValue,
       title: _normalizeTitle(_readString(json['title'])),
-      genre:
-          AppConstants.noticeGenres.contains(genreValue) ? genreValue! : '其他',
+      genre: AppConstants.noticeGenres.contains(genreValue) ? genreValue! : '其他',
       importance: _normalizeImportance(json['importance']),
-      source: AppConstants.noticeSources.contains(sourceValue)
-          ? sourceValue!
-          : '其他',
+      source: AppConstants.noticeSources.contains(sourceValue) ? sourceValue! : '其他',
       review: _normalizeReview(
         review: _readString(json['review']),
         originalText: _readString(json['original_text']),
@@ -102,8 +99,7 @@ class NoticeModel {
   }
 
   static int _normalizeImportance(dynamic value) {
-    final parsed =
-        value is num ? value.round() : int.tryParse(value?.toString() ?? '');
+    final parsed = value is num ? value.round() : int.tryParse(value?.toString() ?? '');
     return _clampInt(parsed ?? 2, min: 0, max: 10);
   }
 
@@ -113,9 +109,7 @@ class NoticeModel {
   }) {
     final trimmedReview = review?.trim() ?? '';
     if (trimmedReview.isNotEmpty) {
-      return trimmedReview.length > 50
-          ? trimmedReview.substring(0, 50)
-          : trimmedReview;
+      return trimmedReview.length > 50 ? trimmedReview.substring(0, 50) : trimmedReview;
     }
 
     final pureText = (originalText ?? '')
@@ -163,15 +157,11 @@ class NoticeModel {
         .toList();
   }
 
-  static List<Map<String, String>> _sortTimeline(
-      List<Map<String, String>> timeline) {
+  static List<Map<String, String>> _sortTimeline(List<Map<String, String>> timeline) {
     final copied = List<Map<String, String>>.from(timeline);
     copied.sort((left, right) {
-      final leftTime =
-          _parseDateTime(left.entries.first.value)?.millisecondsSinceEpoch ?? 0;
-      final rightTime =
-          _parseDateTime(right.entries.first.value)?.millisecondsSinceEpoch ??
-              0;
+      final leftTime = _parseDateTime(left.entries.first.value)?.millisecondsSinceEpoch ?? 0;
+      final rightTime = _parseDateTime(right.entries.first.value)?.millisecondsSinceEpoch ?? 0;
       return leftTime.compareTo(rightTime);
     });
     return copied;

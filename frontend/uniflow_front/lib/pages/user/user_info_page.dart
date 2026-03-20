@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../models/student_info.dart';
 import '../../providers/user_provider.dart';
 import '../../utils/constants.dart';
@@ -25,8 +26,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
   void initState() {
     super.initState();
     final studentInfo = context.read<UserProvider>().studentInfo;
-    _gradeController =
-        TextEditingController(text: studentInfo?.grade?.toString() ?? '');
+    _gradeController = TextEditingController(text: studentInfo?.grade?.toString() ?? '');
     _majorController = TextEditingController(text: studentInfo?.major ?? '');
     _selectedCollege = studentInfo?.college;
     _selectedAcademy = studentInfo?.academy;
@@ -51,6 +51,10 @@ class _UserInfoPageState extends State<UserInfoPage> {
       return;
     }
 
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
     final info = StudentInfo(
       grade: grade,
       college: _selectedCollege,
@@ -63,23 +67,22 @@ class _UserInfoPageState extends State<UserInfoPage> {
       return;
     }
 
-    ScaffoldMessenger.of(context)
+    messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text('个人信息已保存并立即生效'),
+        SnackBar(
+          content: Text(l10n.infoSaved),
           behavior: SnackBarBehavior.floating,
         ),
       );
-    Navigator.of(context).pop();
+    navigator.pop();
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('个人信息'),
-      ),
+      appBar: AppBar(title: Text(l10n.personalInfo)),
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -89,17 +92,17 @@ class _UserInfoPageState extends State<UserInfoPage> {
               TextFormField(
                 controller: _gradeController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: '入学年份',
-                  hintText: '例如 2023',
+                decoration: InputDecoration(
+                  labelText: l10n.entryYear,
+                  hintText: l10n.entryYearHint,
                 ),
                 validator: (value) {
                   final trimmed = value?.trim() ?? '';
                   if (trimmed.isEmpty) {
-                    return '请输入入学年份';
+                    return l10n.entryYearRequired;
                   }
                   if (!RegExp(r'^\d{4}$').hasMatch(trimmed)) {
-                    return '入学年份必须是 4 位数字';
+                    return l10n.entryYearInvalid;
                   }
                   return null;
                 },
@@ -107,15 +110,13 @@ class _UserInfoPageState extends State<UserInfoPage> {
               const SizedBox(height: AppSpacing.medium),
               DropdownButtonFormField<String>(
                 initialValue: _selectedCollege,
-                decoration: const InputDecoration(labelText: '所属学院'),
-                items: AppConstants.collegeOptions
-                    .map(
-                      (item) => DropdownMenuItem<String>(
-                        value: item,
-                        child: Text(item),
-                      ),
-                    )
-                    .toList(),
+                decoration: InputDecoration(labelText: l10n.college),
+                items: AppConstants.collegeOptions.map((item) {
+                  return DropdownMenuItem<String>(
+                    value: item,
+                    child: Text(item),
+                  );
+                }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedCollege = value;
@@ -123,7 +124,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                 },
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return '请选择所属学院';
+                    return l10n.collegeRequired;
                   }
                   return null;
                 },
@@ -131,15 +132,13 @@ class _UserInfoPageState extends State<UserInfoPage> {
               const SizedBox(height: AppSpacing.medium),
               DropdownButtonFormField<String>(
                 initialValue: _selectedAcademy,
-                decoration: const InputDecoration(labelText: '所属书院'),
-                items: AppConstants.academyOptions
-                    .map(
-                      (item) => DropdownMenuItem<String>(
-                        value: item,
-                        child: Text(item),
-                      ),
-                    )
-                    .toList(),
+                decoration: InputDecoration(labelText: l10n.academy),
+                items: AppConstants.academyOptions.map((item) {
+                  return DropdownMenuItem<String>(
+                    value: item,
+                    child: Text(item),
+                  );
+                }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedAcademy = value;
@@ -147,7 +146,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                 },
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return '请选择所属书院';
+                    return l10n.academyRequired;
                   }
                   return null;
                 },
@@ -155,14 +154,14 @@ class _UserInfoPageState extends State<UserInfoPage> {
               const SizedBox(height: AppSpacing.medium),
               TextFormField(
                 controller: _majorController,
-                decoration: const InputDecoration(
-                  labelText: '所学专业',
-                  hintText: '例如 人工智能',
+                decoration: InputDecoration(
+                  labelText: l10n.major,
+                  hintText: l10n.majorHint,
                 ),
                 validator: (value) {
                   final trimmed = value?.trim() ?? '';
                   if (trimmed.isEmpty) {
-                    return '请输入专业名称';
+                    return l10n.majorRequired;
                   }
                   return null;
                 },
@@ -170,15 +169,13 @@ class _UserInfoPageState extends State<UserInfoPage> {
               const SizedBox(height: AppSpacing.medium),
               DropdownButtonFormField<String>(
                 initialValue: _selectedGradeYear,
-                decoration: const InputDecoration(labelText: '年级阶段'),
-                items: AppConstants.gradeYears
-                    .map(
-                      (item) => DropdownMenuItem<String>(
-                        value: item,
-                        child: Text(item),
-                      ),
-                    )
-                    .toList(),
+                decoration: InputDecoration(labelText: l10n.gradeYear),
+                items: AppConstants.gradeYears.map((item) {
+                  return DropdownMenuItem<String>(
+                    value: item,
+                    child: Text(item),
+                  );
+                }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedGradeYear = value;
@@ -186,7 +183,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                 },
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return '请选择年级阶段';
+                    return l10n.gradeYearRequired;
                   }
                   return null;
                 },
@@ -195,7 +192,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
               FilledButton.icon(
                 onPressed: _save,
                 icon: const Icon(Icons.save_outlined),
-                label: const Text('保存信息'),
+                label: Text(l10n.saveInfo),
               ),
             ],
           ),
@@ -204,3 +201,4 @@ class _UserInfoPageState extends State<UserInfoPage> {
     );
   }
 }
+

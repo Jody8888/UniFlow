@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 class AppConstants {
   static const String appName = 'UniFlow 校园通知';
@@ -150,6 +150,8 @@ class AppConstants {
       '国际': 0.10,
     },
   };
+
+  static const List<int> updateFrequencyOptions = <int>[-1, 5, 15, 30, 60];
 }
 
 class AppRoutes {
@@ -163,6 +165,134 @@ class AppStorageKeys {
   static const String noticeCache = 'notice_cache';
   static const String studentInfo = 'student_info';
   static const String preference = 'user_preference';
+}
+
+class AppSortModes {
+  static const String personalized = 'personalized';
+  static const String latest = 'latest';
+  static const String importance = 'importance';
+  static const String deadline = 'deadline';
+
+  static const List<String> values = <String>[
+    personalized,
+    latest,
+    importance,
+    deadline,
+  ];
+
+  static String labelOf(String value) {
+    switch (value) {
+      case latest:
+        return '最新发布';
+      case importance:
+        return '重要度';
+      case deadline:
+        return '截止时间';
+      case personalized:
+      default:
+        return '个性化排序';
+    }
+  }
+}
+
+class AppLanguageOptions {
+  static const String system = 'system';
+  static const String zhCn = 'zh_CN';
+  static const String enUs = 'en_US';
+
+  static const List<String> values = <String>[system, zhCn, enUs];
+
+  static String labelOf(String value) {
+    switch (value) {
+      case zhCn:
+        return '简体中文';
+      case enUs:
+        return 'English';
+      case system:
+      default:
+        return '跟随系统';
+    }
+  }
+}
+
+class AppThemeModes {
+  static const String system = 'system';
+  static const String light = 'light';
+  static const String dark = 'dark';
+
+  static const List<String> values = <String>[system, light, dark];
+}
+
+class AppTimelineRanges {
+  static const String week = '7d';
+  static const String month = '30d';
+  static const String quarter = '90d';
+
+  static const List<String> values = <String>[week, month, quarter];
+
+  static int daysFor(String value) {
+    switch (value) {
+      case month:
+        return 30;
+      case quarter:
+        return 90;
+      case week:
+      default:
+        return 7;
+    }
+  }
+}
+
+class AppSettingsLayouts {
+  static const String horizontalTabs = 'horizontal_tabs';
+  static const String verticalTabs = 'vertical_tabs';
+  static const String secondaryMenu = 'secondary_menu';
+
+  static const List<String> values = <String>[
+    horizontalTabs,
+    verticalTabs,
+    secondaryMenu,
+  ];
+}
+
+class AppThemePresets {
+  static const String xjtuRed = 'xjtu_red';
+  static const String oceanBlue = 'ocean_blue';
+  static const String forestGreen = 'forest_green';
+  static const String amberGold = 'amber_gold';
+
+  static const List<String> values = <String>[
+    xjtuRed,
+    oceanBlue,
+    forestGreen,
+    amberGold,
+  ];
+
+  static const Map<String, Color> seedColors = <String, Color>{
+    xjtuRed: Color(0xFF8D1F24),
+    oceanBlue: Color(0xFF0E7490),
+    forestGreen: Color(0xFF2F6B3B),
+    amberGold: Color(0xFFB7791F),
+  };
+
+  static Color? parseHexColor(String? value) {
+    final normalized = value?.trim() ?? '';
+    if (!RegExp(r'^#?[0-9a-fA-F]{6}$').hasMatch(normalized)) {
+      return null;
+    }
+    final hex = normalized.startsWith('#') ? normalized.substring(1) : normalized;
+    return Color(int.parse('FF$hex', radix: 16));
+  }
+}
+
+class DeveloperInfo {
+  static const String teamName = 'UniFlow Frontend';
+  static const String version = '1.0.0';
+  static const String maintainer = 'Codex + Project Team';
+  static const String description = '西安交通大学校园通知个性化客户端';
+  static const String contact = 'support@example.com';
+  static const String buyMeACoffeeUrl = 'https://www.buymeacoffee.com/uniflow';
+  static const String afdianUrl = 'https://afdian.com/a/uniflow';
 }
 
 class AppSpacing {
@@ -197,46 +327,69 @@ class AppColors {
 }
 
 class AppTheme {
-  static ThemeData buildTheme() {
+  static ThemeData buildTheme({
+    required Brightness brightness,
+    required Color seedColor,
+  }) {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: AppColors.brandPrimary,
-      brightness: Brightness.light,
+      seedColor: seedColor,
+      brightness: brightness,
     );
+    final isDark = brightness == Brightness.dark;
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: AppColors.surface,
-      appBarTheme: const AppBarTheme(
+      scaffoldBackgroundColor: isDark ? colorScheme.surface : AppColors.surface,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: <TargetPlatform, PageTransitionsBuilder>{
+          TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
+        },
+      ),
+      appBarTheme: AppBarTheme(
         centerTitle: false,
         backgroundColor: Colors.transparent,
-        foregroundColor: AppColors.textPrimary,
+        foregroundColor: isDark ? colorScheme.onSurface : AppColors.textPrimary,
         elevation: 0,
       ),
       cardTheme: CardThemeData(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadii.large),
-          side: const BorderSide(color: Color(0xFFF0E2D7)),
+          side: BorderSide(
+            color: isDark ? colorScheme.outlineVariant : const Color(0xFFF0E2D7),
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: isDark ? colorScheme.surfaceContainerHigh : Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.medium),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.medium),
-          borderSide: const BorderSide(color: Color(0xFFE7DACE)),
+          borderSide: BorderSide(
+            color: isDark ? colorScheme.outlineVariant : const Color(0xFFE7DACE),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.medium),
-          borderSide: const BorderSide(color: AppColors.brandPrimary),
+          borderSide: BorderSide(color: colorScheme.primary),
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.medium),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadii.medium),
         ),
@@ -247,6 +400,15 @@ class AppTheme {
             borderRadius: BorderRadius.circular(AppRadii.medium),
           ),
         ),
+      ),
+      tabBarTheme: TabBarThemeData(
+        dividerColor: Colors.transparent,
+        indicator: BoxDecoration(
+          color: colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(AppRadii.medium),
+        ),
+        labelColor: colorScheme.onPrimaryContainer,
+        unselectedLabelColor: colorScheme.onSurfaceVariant,
       ),
     );
   }

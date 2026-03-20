@@ -1,4 +1,4 @@
-import 'package:intl/intl.dart';
+﻿import 'package:intl/intl.dart';
 
 import '../models/notice_model.dart';
 
@@ -54,14 +54,11 @@ class AppDateUtils {
     return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
   }
 
-  static List<Map<String, String>> sortTimeline(
-      List<Map<String, String>> timeline) {
+  static List<Map<String, String>> sortTimeline(List<Map<String, String>> timeline) {
     final copied = List<Map<String, String>>.from(timeline);
     copied.sort((left, right) {
-      final leftValue =
-          parseDateTime(left.entries.first.value)?.millisecondsSinceEpoch ?? 0;
-      final rightValue =
-          parseDateTime(right.entries.first.value)?.millisecondsSinceEpoch ?? 0;
+      final leftValue = parseDateTime(left.entries.first.value)?.millisecondsSinceEpoch ?? 0;
+      final rightValue = parseDateTime(right.entries.first.value)?.millisecondsSinceEpoch ?? 0;
       return leftValue.compareTo(rightValue);
     });
     return copied;

@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../utils/constants.dart';
 
 class LoadingWidget extends StatelessWidget {
@@ -16,6 +17,7 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.large),
@@ -31,15 +33,12 @@ class LoadingWidget extends StatelessWidget {
             else
               const CircularProgressIndicator(),
             const SizedBox(height: AppSpacing.medium),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-            ),
+            Text(message, textAlign: TextAlign.center),
             if (isError && onRetry != null) ...[
               const SizedBox(height: AppSpacing.medium),
               FilledButton(
                 onPressed: onRetry,
-                child: const Text('重新加载'),
+                child: Text(l10n.retryLoad),
               ),
             ],
           ],

@@ -1,3 +1,5 @@
+﻿import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../models/notice_model.dart';
@@ -25,6 +27,7 @@ class NoticeProvider extends ChangeNotifier {
   List<NoticeModel> _sortedNotices = <NoticeModel>[];
   StudentInfo? _studentInfo;
   UserPreference _preference = UserPreference.empty();
+  Timer? _autoRefreshTimer;
 
   bool _isLoading = false;
   bool _isRefreshing = false;
@@ -49,6 +52,8 @@ class NoticeProvider extends ChangeNotifier {
   }) async {
     _studentInfo = studentInfo;
     _preference = preference;
+    _applyOperationalSettings();
+
     final cache = await _storageService.loadNotices();
     _rawNotices
       ..clear()
@@ -56,6 +61,7 @@ class NoticeProvider extends ChangeNotifier {
     _resort();
     _initialized = true;
     notifyListeners();
+
     await refreshNotices(showLoading: _rawNotices.isEmpty);
   }
 
@@ -65,6 +71,7 @@ class NoticeProvider extends ChangeNotifier {
   }) {
     _studentInfo = studentInfo;
     _preference = preference;
+    _applyOperationalSettings();
     _resort();
     notifyListeners();
   }
@@ -167,6 +174,7 @@ class NoticeProvider extends ChangeNotifier {
     _currentPage = 1;
     _hasMore = true;
     _errorMessage = null;
+    _autoRefreshTimer?.cancel();
     await _storageService.clearNoticeCache();
     notifyListeners();
   }
@@ -177,5 +185,32 @@ class NoticeProvider extends ChangeNotifier {
       studentInfo: _studentInfo,
       preference: _preference,
     );
+  }
+
+  void _applyOperationalSettings() {
+    _apiService.updateSource(_preference.activeApiSource);
+    _configureAutoRefresh(_preference.updateFrequencyMinutes);
+  }
+
+  void _configureAutoRefresh(int minutes) {
+    _autoRefreshTimer?.cancel();
+    if (minutes <= 0) {
+      return;
+    }
+
+    _autoRefreshTimer = Timer.periodic(
+      Duration(minutes: minutes),
+      (_) {
+        if (!_isLoading && !_isRefreshing && !_isLoadingMore) {
+          refreshNotices();
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _autoRefreshTimer?.cancel();
+    super.dispose();
   }
 }

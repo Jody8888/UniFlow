@@ -1,4 +1,4 @@
-import '../models/notice_model.dart';
+﻿import '../models/notice_model.dart';
 import '../models/student_info.dart';
 import '../models/user_preference.dart';
 import '../utils/constants.dart';
@@ -14,31 +14,38 @@ class SortService {
         .where((notice) => !preference.dislikedGenres.contains(notice.genre))
         .toList();
 
-    visibleNotices.sort((left, right) {
-      final rightScore = calculateScore(
-        notice: right,
-        allNotices: notices,
-        studentInfo: studentInfo,
-        preference: preference,
-      );
-      final leftScore = calculateScore(
-        notice: left,
-        allNotices: notices,
-        studentInfo: studentInfo,
-        preference: preference,
-      );
+    switch (preference.homeSortMode) {
+      case AppSortModes.latest:
+        visibleNotices.sort(_compareByLatest);
+        break;
+      case AppSortModes.importance:
+        visibleNotices.sort(_compareByImportance);
+        break;
+      case AppSortModes.deadline:
+        visibleNotices.sort(_compareByDeadline);
+        break;
+      case AppSortModes.personalized:
+      default:
+        visibleNotices.sort((left, right) {
+          final rightScore = calculateScore(
+            notice: right,
+            allNotices: notices,
+            studentInfo: studentInfo,
+            preference: preference,
+          );
+          final leftScore = calculateScore(
+            notice: left,
+            allNotices: notices,
+            studentInfo: studentInfo,
+            preference: preference,
+          );
 
-      if (rightScore == leftScore) {
-        final rightTime =
-            AppDateUtils.extractPublishedTime(right)?.millisecondsSinceEpoch ??
-                0;
-        final leftTime =
-            AppDateUtils.extractPublishedTime(left)?.millisecondsSinceEpoch ??
-                0;
-        return rightTime.compareTo(leftTime);
-      }
-      return rightScore.compareTo(leftScore);
-    });
+          if (rightScore == leftScore) {
+            return _compareByLatest(left, right);
+          }
+          return rightScore.compareTo(leftScore);
+        });
+    }
 
     return visibleNotices;
   }
@@ -52,7 +59,6 @@ class SortService {
     final baseScore = notice.importance.toDouble();
     var personalization = 0.0;
 
-    // 个性化系数严格按业务规则累加，最终限制在 0~1 之间。
     if (studentInfo != null) {
       if ((studentInfo.college?.isNotEmpty ?? false) &&
           notice.source == studentInfo.college) {
@@ -72,8 +78,7 @@ class SortService {
       }
 
       final gradeWeights =
-          AppConstants.defaultGenreWeights[studentInfo.gradeYear] ??
-              const <String, double>{};
+          AppConstants.defaultGenreWeights[studentInfo.gradeYear] ?? const <String, double>{};
       personalization += gradeWeights[notice.genre] ?? 0;
     }
 
@@ -111,12 +116,44 @@ class SortService {
       penalty += 2;
     }
 
-    var finalScore =
-        baseScore * (1 + personalizationScore) + timeScore - penalty;
+    var finalScore = baseScore * (1 + personalizationScore) + timeScore - penalty;
     if (expired && finalScore > 2) {
       finalScore = 2;
     }
     return finalScore;
+  }
+
+  int _compareByLatest(NoticeModel left, NoticeModel right) {
+    final rightTime = AppDateUtils.extractPublishedTime(right)?.millisecondsSinceEpoch ?? 0;
+    final leftTime = AppDateUtils.extractPublishedTime(left)?.millisecondsSinceEpoch ?? 0;
+    return rightTime.compareTo(leftTime);
+  }
+
+  int _compareByImportance(NoticeModel left, NoticeModel right) {
+    final importance = right.importance.compareTo(left.importance);
+    if (importance != 0) {
+      return importance;
+    }
+    return _compareByLatest(left, right);
+  }
+
+  int _compareByDeadline(NoticeModel left, NoticeModel right) {
+    final leftDeadline = AppDateUtils.extractLatestBusinessTime(left);
+    final rightDeadline = AppDateUtils.extractLatestBusinessTime(right);
+    if (leftDeadline == null && rightDeadline == null) {
+      return _compareByLatest(left, right);
+    }
+    if (leftDeadline == null) {
+      return 1;
+    }
+    if (rightDeadline == null) {
+      return -1;
+    }
+    final compare = leftDeadline.compareTo(rightDeadline);
+    if (compare != 0) {
+      return compare;
+    }
+    return _compareByLatest(left, right);
   }
 
   double _calculateTimeScore(NoticeModel notice) {
@@ -164,8 +201,8 @@ class SortService {
     final majorMatched = notice.keywords.contains(studentInfo.major ?? '');
     final schoolLevel = AppConstants.schoolLevelSources.contains(notice.source);
     final weightMatched =
-        ((AppConstants.defaultGenreWeights[studentInfo.gradeYear] ??
-                        const <String, double>{})[notice.genre] ??
+        ((AppConstants.defaultGenreWeights[studentInfo.gradeYear] ?? const <String, double>{})[
+                        notice.genre] ??
                     0) >
                 0 ||
             (preference.customWeights[notice.genre] ?? 0) > 0;
@@ -179,8 +216,7 @@ class SortService {
         notice.importance <= 3;
   }
 
-  double _clampDouble(double value,
-      {required double min, required double max}) {
+  double _clampDouble(double value, {required double min, required double max}) {
     if (value < min) {
       return min;
     }

@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../models/notice_model.dart';
 import '../../utils/constants.dart';
 import '../../utils/date_utils.dart';
@@ -16,13 +17,12 @@ class NoticeDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final currentNotice = notice;
     if (currentNotice == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('通知详情')),
-        body: const Center(
-          child: Text('通知参数缺失，暂时无法展示详情。'),
-        ),
+        appBar: AppBar(title: Text(l10n.noticeDetail)),
+        body: Center(child: Text(l10n.noticeDetailMissing)),
       );
     }
 
@@ -32,15 +32,15 @@ class NoticeDetailPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('通知详情'),
+        title: Text(l10n.noticeDetail),
         actions: [
           if (currentNotice.link.trim().isNotEmpty)
             IconButton(
-              tooltip: '查看原文',
+              tooltip: l10n.viewOriginal,
               onPressed: () => _openUrl(
                 context: context,
                 url: currentNotice.link,
-                errorMessage: '原文链接打开失败',
+                errorMessage: l10n.openOriginalFailed,
               ),
               icon: const Icon(Icons.open_in_new),
             ),
@@ -78,60 +78,60 @@ class NoticeDetailPage extends StatelessWidget {
                         ),
                         _buildTag(
                           context,
-                          label: '重要度 ${currentNotice.importance}',
+                          label: l10n.importance('${currentNotice.importance}'),
                           color: AppColors.importanceChip,
                         ),
                         _buildTag(
                           context,
-                          label: isExpired ? '已过期' : '进行中',
-                          color: isExpired
-                              ? AppColors.expiredChip
-                              : AppColors.activeChip,
+                          label: isExpired ? l10n.expired : l10n.ongoing,
+                          color: isExpired ? AppColors.expiredChip : AppColors.activeChip,
                         ),
                       ],
                     ),
                     const SizedBox(height: AppSpacing.medium),
-                    Text('摘要：${currentNotice.review}'),
-                    const SizedBox(height: AppSpacing.small),
-                    Text('发布时间：${AppDateUtils.formatDateTime(publishedTime)}'),
+                    Text(l10n.summary(currentNotice.review)),
                     const SizedBox(height: AppSpacing.small),
                     Text(
-                      '抓取时间：${AppDateUtils.formatDateTime(AppDateUtils.parseDateTime(currentNotice.fetchTime))}',
+                      l10n.publishedAt(
+                        AppDateUtils.formatDateTime(publishedTime),
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.small),
-                    Text('关键词：${currentNotice.keywords}'),
+                    Text(
+                      l10n.fetchedAt(
+                        AppDateUtils.formatDateTime(
+                          AppDateUtils.parseDateTime(currentNotice.fetchTime),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.small),
+                    Text(l10n.keywords(currentNotice.keywords)),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: AppSpacing.large),
-            Text(
-              '通知正文',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text(l10n.noticeBody, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: AppSpacing.small),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.medium),
                 child: Html(
                   data: currentNotice.originalText.trim().isEmpty
-                      ? '<p>暂无正文内容</p>'
+                      ? l10n.emptyBodyHtml
                       : currentNotice.originalText,
                   onLinkTap: (url, _, __) {
                     _openUrl(
                       context: context,
                       url: url ?? '',
-                      errorMessage: '正文链接打开失败',
+                      errorMessage: l10n.openBodyLinkFailed,
                     );
                   },
                 ),
               ),
             ),
             const SizedBox(height: AppSpacing.large),
-            Text(
-              '时间线',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text(l10n.timeline, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: AppSpacing.small),
             Card(
               child: Padding(
@@ -140,15 +140,12 @@ class NoticeDetailPage extends StatelessWidget {
                   children: sortedTimeline.map((node) {
                     final entry = node.entries.first;
                     final nodeTime = AppDateUtils.parseDateTime(entry.value);
-                    final isPast =
-                        nodeTime != null && nodeTime.isBefore(DateTime.now());
+                    final isPast = nodeTime != null && nodeTime.isBefore(DateTime.now());
                     return Container(
                       margin: const EdgeInsets.only(bottom: AppSpacing.medium),
                       padding: const EdgeInsets.all(AppSpacing.medium),
                       decoration: BoxDecoration(
-                        color: isPast
-                            ? AppColors.timelinePast
-                            : AppColors.timelineFuture,
+                        color: isPast ? AppColors.timelinePast : AppColors.timelineFuture,
                         borderRadius: BorderRadius.circular(AppRadii.medium),
                       ),
                       child: Row(
@@ -156,9 +153,7 @@ class NoticeDetailPage extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.schedule,
-                            color: isPast
-                                ? AppColors.textSecondary
-                                : AppColors.brandPrimary,
+                            color: isPast ? AppColors.textSecondary : AppColors.brandPrimary,
                           ),
                           const SizedBox(width: AppSpacing.small),
                           Expanded(
@@ -167,10 +162,7 @@ class NoticeDetailPage extends StatelessWidget {
                               children: [
                                 Text(
                                   entry.key,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                         color: isPast
                                             ? AppColors.textSecondary
                                             : AppColors.textPrimary,
@@ -179,10 +171,7 @@ class NoticeDetailPage extends StatelessWidget {
                                 const SizedBox(height: 4),
                                 Text(
                                   entry.value,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                         color: isPast
                                             ? AppColors.textSecondary
                                             : AppColors.textPrimary,
@@ -199,16 +188,13 @@ class NoticeDetailPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.large),
-            Text(
-              '附件列表',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text(l10n.attachments, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: AppSpacing.small),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.medium),
                 child: currentNotice.attachment.isEmpty
-                    ? const Text('暂无附件')
+                    ? Text(l10n.noAttachments)
                     : Column(
                         children: currentNotice.attachment.map((item) {
                           final entry = item.entries.first;
@@ -220,7 +206,7 @@ class NoticeDetailPage extends StatelessWidget {
                             onTap: () => _openUrl(
                               context: context,
                               url: entry.value,
-                              errorMessage: '附件链接打开失败',
+                              errorMessage: l10n.openAttachmentFailed,
                             ),
                           );
                         }).toList(),
@@ -258,10 +244,7 @@ class NoticeDetailPage extends StatelessWidget {
       return;
     }
     try {
-      final success = await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
+      final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!success && context.mounted) {
         _showMessage(context, errorMessage);
       }

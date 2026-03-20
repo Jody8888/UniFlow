@@ -1,3 +1,4 @@
+﻿import 'api_source_config.dart';
 import '../utils/constants.dart';
 
 class UserPreference {
@@ -5,13 +6,43 @@ class UserPreference {
     Set<String>? readNoticeIds,
     Set<String>? dislikedGenres,
     Map<String, double>? customWeights,
+    int? updateFrequencyMinutes,
+    List<ApiSourceConfig>? apiSources,
+    String? activeApiSourceId,
+    String? languageCode,
+    String? homeSortMode,
+    String? themeMode,
+    String? themePreset,
+    String? customThemeColorHex,
+    String? timelineRange,
+    String? settingsLayout,
   })  : readNoticeIds = readNoticeIds ?? <String>{},
         dislikedGenres = dislikedGenres ?? <String>{},
-        customWeights = _normalizeWeights(customWeights);
+        customWeights = _normalizeWeights(customWeights),
+        updateFrequencyMinutes = updateFrequencyMinutes ?? -1,
+        apiSources = _normalizeSources(apiSources),
+        activeApiSourceId = activeApiSourceId ?? ApiSourceConfig.mock().id,
+        languageCode = languageCode ?? AppLanguageOptions.system,
+        homeSortMode = homeSortMode ?? AppSortModes.personalized,
+        themeMode = _normalizeThemeMode(themeMode),
+        themePreset = _normalizeThemePreset(themePreset),
+        customThemeColorHex = _normalizeCustomThemeColorHex(customThemeColorHex),
+        timelineRange = _normalizeTimelineRange(timelineRange),
+        settingsLayout = _normalizeSettingsLayout(settingsLayout);
 
   final Set<String> readNoticeIds;
   final Set<String> dislikedGenres;
   final Map<String, double> customWeights;
+  final int updateFrequencyMinutes;
+  final List<ApiSourceConfig> apiSources;
+  final String activeApiSourceId;
+  final String languageCode;
+  final String homeSortMode;
+  final String themeMode;
+  final String themePreset;
+  final String? customThemeColorHex;
+  final String timelineRange;
+  final String settingsLayout;
 
   factory UserPreference.empty() {
     return UserPreference(
@@ -20,6 +51,22 @@ class UserPreference {
       customWeights: <String, double>{
         for (final genre in AppConstants.noticeGenres) genre: 0,
       },
+      updateFrequencyMinutes: -1,
+      apiSources: const <ApiSourceConfig>[ApiSourceConfig(
+        id: 'mock-default',
+        name: '内置 Mock 数据',
+        baseUrl: 'https://example.com',
+        noticePath: '/api/notices',
+        useMockData: true,
+      )],
+      activeApiSourceId: 'mock-default',
+      languageCode: AppLanguageOptions.system,
+      homeSortMode: AppSortModes.personalized,
+      themeMode: AppThemeModes.system,
+      themePreset: AppThemePresets.xjtuRed,
+      customThemeColorHex: null,
+      timelineRange: AppTimelineRanges.month,
+      settingsLayout: AppSettingsLayouts.horizontalTabs,
     );
   }
 
@@ -28,6 +75,16 @@ class UserPreference {
       readNoticeIds: _readStringSet(json['readNoticeIds']),
       dislikedGenres: _readStringSet(json['dislikedGenres']),
       customWeights: _readDoubleMap(json['customWeights']),
+      updateFrequencyMinutes: _readInt(json['updateFrequencyMinutes']) ?? -1,
+      apiSources: _readSources(json['apiSources']),
+      activeApiSourceId: json['activeApiSourceId']?.toString(),
+      languageCode: json['languageCode']?.toString(),
+      homeSortMode: json['homeSortMode']?.toString(),
+      themeMode: json['themeMode']?.toString(),
+      themePreset: json['themePreset']?.toString(),
+      customThemeColorHex: json['customThemeColorHex']?.toString(),
+      timelineRange: json['timelineRange']?.toString(),
+      settingsLayout: json['settingsLayout']?.toString(),
     );
   }
 
@@ -36,6 +93,16 @@ class UserPreference {
       'readNoticeIds': readNoticeIds.toList(),
       'dislikedGenres': dislikedGenres.toList(),
       'customWeights': customWeights,
+      'updateFrequencyMinutes': updateFrequencyMinutes,
+      'apiSources': apiSources.map((item) => item.toJson()).toList(),
+      'activeApiSourceId': activeApiSourceId,
+      'languageCode': languageCode,
+      'homeSortMode': homeSortMode,
+      'themeMode': themeMode,
+      'themePreset': themePreset,
+      'customThemeColorHex': customThemeColorHex,
+      'timelineRange': timelineRange,
+      'settingsLayout': settingsLayout,
     };
   }
 
@@ -43,12 +110,38 @@ class UserPreference {
     Set<String>? readNoticeIds,
     Set<String>? dislikedGenres,
     Map<String, double>? customWeights,
+    int? updateFrequencyMinutes,
+    List<ApiSourceConfig>? apiSources,
+    String? activeApiSourceId,
+    String? languageCode,
+    String? homeSortMode,
+    String? themeMode,
+    String? themePreset,
+    String? customThemeColorHex,
+    String? timelineRange,
+    String? settingsLayout,
   }) {
     return UserPreference(
       readNoticeIds: readNoticeIds ?? this.readNoticeIds,
       dislikedGenres: dislikedGenres ?? this.dislikedGenres,
       customWeights: customWeights ?? this.customWeights,
+      updateFrequencyMinutes:
+          updateFrequencyMinutes ?? this.updateFrequencyMinutes,
+      apiSources: apiSources ?? this.apiSources,
+      activeApiSourceId: activeApiSourceId ?? this.activeApiSourceId,
+      languageCode: languageCode ?? this.languageCode,
+      homeSortMode: homeSortMode ?? this.homeSortMode,
+      themeMode: themeMode ?? this.themeMode,
+      themePreset: themePreset ?? this.themePreset,
+      customThemeColorHex: customThemeColorHex ?? this.customThemeColorHex,
+      timelineRange: timelineRange ?? this.timelineRange,
+      settingsLayout: settingsLayout ?? this.settingsLayout,
     );
+  }
+
+  ApiSourceConfig get activeApiSource {
+    return apiSources.where((item) => item.id == activeApiSourceId).firstOrNull ??
+        apiSources.first;
   }
 
   static Map<String, double> _normalizeWeights(Map<String, double>? weights) {
@@ -64,6 +157,19 @@ class UserPreference {
       }
     }
     return normalized;
+  }
+
+  static List<ApiSourceConfig> _normalizeSources(List<ApiSourceConfig>? sources) {
+    if (sources == null || sources.isEmpty) {
+      return const <ApiSourceConfig>[ApiSourceConfig(
+        id: 'mock-default',
+        name: '内置 Mock 数据',
+        baseUrl: 'https://example.com',
+        noticePath: '/api/notices',
+        useMockData: true,
+      )];
+    }
+    return sources;
   }
 
   static Set<String> _readStringSet(dynamic value) {
@@ -99,6 +205,40 @@ class UserPreference {
     return result;
   }
 
+  static List<ApiSourceConfig> _readSources(dynamic value) {
+    if (value is! List) {
+      return const <ApiSourceConfig>[ApiSourceConfig(
+        id: 'mock-default',
+        name: '内置 Mock 数据',
+        baseUrl: 'https://example.com',
+        noticePath: '/api/notices',
+        useMockData: true,
+      )];
+    }
+    final items = value
+        .whereType<Map>()
+        .map((item) => ApiSourceConfig.fromJson(
+              item.map((key, val) => MapEntry(key.toString(), val)),
+            ))
+        .toList();
+    return items.isEmpty
+        ? const <ApiSourceConfig>[ApiSourceConfig(
+            id: 'mock-default',
+            name: '内置 Mock 数据',
+            baseUrl: 'https://example.com',
+            noticePath: '/api/notices',
+            useMockData: true,
+          )]
+        : items;
+  }
+
+  static int? _readInt(dynamic value) {
+    if (value is int) {
+      return value;
+    }
+    return int.tryParse(value?.toString() ?? '');
+  }
+
   static double _clampWeight(double value) {
     if (value < -0.5) {
       return -0.5;
@@ -108,4 +248,44 @@ class UserPreference {
     }
     return value;
   }
+
+  static String _normalizeThemeMode(String? value) {
+    if (AppThemeModes.values.contains(value)) {
+      return value!;
+    }
+    return AppThemeModes.system;
+  }
+
+  static String _normalizeThemePreset(String? value) {
+    if (AppThemePresets.values.contains(value)) {
+      return value!;
+    }
+    return AppThemePresets.xjtuRed;
+  }
+
+  static String? _normalizeCustomThemeColorHex(String? value) {
+    final color = AppThemePresets.parseHexColor(value);
+    if (color == null) {
+      return null;
+    }
+    return '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
+  }
+
+  static String _normalizeTimelineRange(String? value) {
+    if (AppTimelineRanges.values.contains(value)) {
+      return value!;
+    }
+    return AppTimelineRanges.month;
+  }
+
+  static String _normalizeSettingsLayout(String? value) {
+    if (AppSettingsLayouts.values.contains(value)) {
+      return value!;
+    }
+    return AppSettingsLayouts.horizontalTabs;
+  }
+}
+
+extension _FirstOrNullExtension<T> on Iterable<T> {
+  T? get firstOrNull => isEmpty ? null : first;
 }

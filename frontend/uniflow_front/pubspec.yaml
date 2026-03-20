@@ -1,0 +1,27 @@
+﻿name: uniflow_front
+description: 西安交通大学校园通知个性化客户端
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  dio: ^5.9.0
+  flutter_html: ^3.0.0
+  intl: ^0.20.2
+  provider: ^6.1.5
+  pull_to_refresh: ^2.0.0
+  shared_preferences: ^2.5.3
+  url_launcher: ^6.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

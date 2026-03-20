@@ -4,6 +4,7 @@ import '../utils/constants.dart';
 class UserPreference {
   UserPreference({
     Set<String>? readNoticeIds,
+    Set<String>? favoriteNoticeIds,
     Set<String>? dislikedGenres,
     Map<String, double>? customWeights,
     int? updateFrequencyMinutes,
@@ -16,7 +17,10 @@ class UserPreference {
     String? customThemeColorHex,
     String? timelineRange,
     String? settingsLayout,
+    String? widgetListSize,
+    String? widgetTimelineSize,
   })  : readNoticeIds = readNoticeIds ?? <String>{},
+        favoriteNoticeIds = favoriteNoticeIds ?? <String>{},
         dislikedGenres = dislikedGenres ?? <String>{},
         customWeights = _normalizeWeights(customWeights),
         updateFrequencyMinutes = updateFrequencyMinutes ?? -1,
@@ -28,9 +32,12 @@ class UserPreference {
         themePreset = _normalizeThemePreset(themePreset),
         customThemeColorHex = _normalizeCustomThemeColorHex(customThemeColorHex),
         timelineRange = _normalizeTimelineRange(timelineRange),
-        settingsLayout = _normalizeSettingsLayout(settingsLayout);
+        settingsLayout = _normalizeSettingsLayout(settingsLayout),
+        widgetListSize = _normalizeWidgetSize(widgetListSize),
+        widgetTimelineSize = _normalizeWidgetSize(widgetTimelineSize);
 
   final Set<String> readNoticeIds;
+  final Set<String> favoriteNoticeIds;
   final Set<String> dislikedGenres;
   final Map<String, double> customWeights;
   final int updateFrequencyMinutes;
@@ -43,10 +50,13 @@ class UserPreference {
   final String? customThemeColorHex;
   final String timelineRange;
   final String settingsLayout;
+  final String widgetListSize;
+  final String widgetTimelineSize;
 
   factory UserPreference.empty() {
     return UserPreference(
       readNoticeIds: <String>{},
+      favoriteNoticeIds: <String>{},
       dislikedGenres: <String>{},
       customWeights: <String, double>{
         for (final genre in AppConstants.noticeGenres) genre: 0,
@@ -67,12 +77,15 @@ class UserPreference {
       customThemeColorHex: null,
       timelineRange: AppTimelineRanges.month,
       settingsLayout: AppSettingsLayouts.horizontalTabs,
+      widgetListSize: AppWidgetSizes.medium,
+      widgetTimelineSize: AppWidgetSizes.large,
     );
   }
 
   factory UserPreference.fromJson(Map<String, dynamic> json) {
     return UserPreference(
       readNoticeIds: _readStringSet(json['readNoticeIds']),
+      favoriteNoticeIds: _readStringSet(json['favoriteNoticeIds']),
       dislikedGenres: _readStringSet(json['dislikedGenres']),
       customWeights: _readDoubleMap(json['customWeights']),
       updateFrequencyMinutes: _readInt(json['updateFrequencyMinutes']) ?? -1,
@@ -85,12 +98,15 @@ class UserPreference {
       customThemeColorHex: json['customThemeColorHex']?.toString(),
       timelineRange: json['timelineRange']?.toString(),
       settingsLayout: json['settingsLayout']?.toString(),
+      widgetListSize: json['widgetListSize']?.toString(),
+      widgetTimelineSize: json['widgetTimelineSize']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'readNoticeIds': readNoticeIds.toList(),
+      'favoriteNoticeIds': favoriteNoticeIds.toList(),
       'dislikedGenres': dislikedGenres.toList(),
       'customWeights': customWeights,
       'updateFrequencyMinutes': updateFrequencyMinutes,
@@ -103,11 +119,14 @@ class UserPreference {
       'customThemeColorHex': customThemeColorHex,
       'timelineRange': timelineRange,
       'settingsLayout': settingsLayout,
+      'widgetListSize': widgetListSize,
+      'widgetTimelineSize': widgetTimelineSize,
     };
   }
 
   UserPreference copyWith({
     Set<String>? readNoticeIds,
+    Set<String>? favoriteNoticeIds,
     Set<String>? dislikedGenres,
     Map<String, double>? customWeights,
     int? updateFrequencyMinutes,
@@ -120,9 +139,12 @@ class UserPreference {
     String? customThemeColorHex,
     String? timelineRange,
     String? settingsLayout,
+    String? widgetListSize,
+    String? widgetTimelineSize,
   }) {
     return UserPreference(
       readNoticeIds: readNoticeIds ?? this.readNoticeIds,
+      favoriteNoticeIds: favoriteNoticeIds ?? this.favoriteNoticeIds,
       dislikedGenres: dislikedGenres ?? this.dislikedGenres,
       customWeights: customWeights ?? this.customWeights,
       updateFrequencyMinutes:
@@ -136,6 +158,8 @@ class UserPreference {
       customThemeColorHex: customThemeColorHex ?? this.customThemeColorHex,
       timelineRange: timelineRange ?? this.timelineRange,
       settingsLayout: settingsLayout ?? this.settingsLayout,
+      widgetListSize: widgetListSize ?? this.widgetListSize,
+      widgetTimelineSize: widgetTimelineSize ?? this.widgetTimelineSize,
     );
   }
 
@@ -283,6 +307,13 @@ class UserPreference {
       return value!;
     }
     return AppSettingsLayouts.horizontalTabs;
+  }
+
+  static String _normalizeWidgetSize(String? value) {
+    if (AppWidgetSizes.values.contains(value)) {
+      return value!;
+    }
+    return AppWidgetSizes.medium;
   }
 }
 

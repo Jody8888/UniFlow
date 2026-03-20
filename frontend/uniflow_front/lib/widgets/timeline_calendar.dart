@@ -12,12 +12,16 @@ class TimelineCalendar extends StatelessWidget {
     required this.selectedRange,
     required this.onRangeChanged,
     required this.onNoticeTap,
+    required this.favoriteIds,
+    required this.onToggleFavorite,
   });
 
   final List<NoticeModel> notices;
   final String selectedRange;
   final ValueChanged<String> onRangeChanged;
   final Future<void> Function(NoticeModel notice) onNoticeTap;
+  final Set<String> favoriteIds;
+  final Future<void> Function(NoticeModel notice) onToggleFavorite;
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +126,31 @@ class TimelineCalendar extends StatelessWidget {
                           child: ListTile(
                             title: Text(notice.title, maxLines: 2),
                             subtitle: Text(notice.source),
-                            trailing: Text(notice.genre),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(notice.genre),
+                                IconButton(
+                                  tooltip: favoriteIds.contains(notice.id)
+                                      ? context.l10n.removeFromFavorites
+                                      : context.l10n.addToFavorites,
+                                  onPressed: () async {
+                                    await onToggleFavorite(notice);
+                                    if (sheetContext.mounted) {
+                                      Navigator.of(sheetContext).pop();
+                                    }
+                                  },
+                                  icon: Icon(
+                                    favoriteIds.contains(notice.id)
+                                        ? Icons.star
+                                        : Icons.star_border,
+                                    color: favoriteIds.contains(notice.id)
+                                        ? Colors.amber.shade700
+                                        : null,
+                                  ),
+                                ),
+                              ],
+                            ),
                             onTap: () async {
                               Navigator.of(sheetContext).pop();
                               await onNoticeTap(notice);

@@ -10,14 +10,24 @@ class NoticeCard extends StatelessWidget {
     super.key,
     required this.notice,
     required this.isRead,
+    required this.isFavorite,
     required this.onTap,
     required this.onMarkDislike,
+    required this.onToggleFavorite,
+    this.selectionMode = false,
+    this.selected = false,
+    this.onSelectionToggle,
   });
 
   final NoticeModel notice;
   final bool isRead;
+  final bool isFavorite;
   final VoidCallback onTap;
   final VoidCallback onMarkDislike;
+  final VoidCallback onToggleFavorite;
+  final bool selectionMode;
+  final bool selected;
+  final VoidCallback? onSelectionToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +54,7 @@ class NoticeCard extends StatelessWidget {
           ),
         );
       },
-      child: AnimatedContainer(
+        child: AnimatedContainer(
         duration: const Duration(milliseconds: 260),
         curve: Curves.easeOutCubic,
         child: Card(
@@ -55,8 +65,8 @@ class NoticeCard extends StatelessWidget {
               : Theme.of(context).cardTheme.color,
           child: InkWell(
             borderRadius: BorderRadius.circular(AppRadii.large),
-            onTap: onTap,
-            onLongPress: onMarkDislike,
+            onTap: selectionMode ? onSelectionToggle : onTap,
+            onLongPress: onSelectionToggle ?? onMarkDislike,
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.large),
               child: Column(
@@ -75,6 +85,27 @@ class NoticeCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: AppSpacing.small),
+                      if (selectionMode)
+                        Icon(
+                          selected
+                              ? Icons.check_circle
+                              : Icons.radio_button_unchecked,
+                          color: selected
+                              ? colorScheme.primary
+                              : colorScheme.outline,
+                        ),
+                      if (selectionMode)
+                        const SizedBox(width: AppSpacing.small),
+                      IconButton(
+                        tooltip: isFavorite
+                            ? l10n.removeFromFavorites
+                            : l10n.addToFavorites,
+                        onPressed: onToggleFavorite,
+                        icon: Icon(
+                          isFavorite ? Icons.star : Icons.star_border,
+                          color: isFavorite ? Colors.amber.shade700 : null,
+                        ),
+                      ),
                       IconButton(
                         tooltip: l10n.notInterested,
                         onPressed: onMarkDislike,
@@ -117,6 +148,11 @@ class NoticeCard extends StatelessWidget {
                         _InfoChip(
                           label: l10n.read,
                           backgroundColor: AppColors.readChip,
+                        ),
+                      if (isFavorite)
+                        _InfoChip(
+                          label: l10n.favorited,
+                          backgroundColor: AppColors.activeChip,
                         ),
                     ],
                   ),

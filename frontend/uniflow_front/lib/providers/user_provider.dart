@@ -40,6 +40,33 @@ class UserProvider extends ChangeNotifier {
     await _savePreference(_preference.copyWith(readNoticeIds: nextReadIds));
   }
 
+  Future<void> toggleFavoriteNotice(String noticeId) async {
+    final nextFavoriteIds = Set<String>.from(_preference.favoriteNoticeIds);
+    if (nextFavoriteIds.contains(noticeId)) {
+      nextFavoriteIds.remove(noticeId);
+    } else {
+      nextFavoriteIds.add(noticeId);
+    }
+    await _savePreference(
+      _preference.copyWith(favoriteNoticeIds: nextFavoriteIds),
+    );
+  }
+
+  Future<void> setFavoriteStateForBatch(
+    Iterable<String> noticeIds, {
+    required bool favorite,
+  }) async {
+    final nextFavoriteIds = Set<String>.from(_preference.favoriteNoticeIds);
+    if (favorite) {
+      nextFavoriteIds.addAll(noticeIds);
+    } else {
+      nextFavoriteIds.removeAll(noticeIds);
+    }
+    await _savePreference(
+      _preference.copyWith(favoriteNoticeIds: nextFavoriteIds),
+    );
+  }
+
   Future<void> addDislikedGenre(String genre) async {
     final genres = Set<String>.from(_preference.dislikedGenres)..add(genre);
     await _savePreference(_preference.copyWith(dislikedGenres: genres));
@@ -105,6 +132,9 @@ class UserProvider extends ChangeNotifier {
       customThemeColorHex: value,
       timelineRange: _preference.timelineRange,
       settingsLayout: _preference.settingsLayout,
+      favoriteNoticeIds: _preference.favoriteNoticeIds,
+      widgetListSize: _preference.widgetListSize,
+      widgetTimelineSize: _preference.widgetTimelineSize,
     );
     await _savePreference(nextPreference);
   }
@@ -121,6 +151,20 @@ class UserProvider extends ChangeNotifier {
         ? value
         : AppSettingsLayouts.horizontalTabs;
     await _savePreference(_preference.copyWith(settingsLayout: safe));
+  }
+
+  Future<void> updateWidgetListSize(String value) async {
+    final safe = AppWidgetSizes.values.contains(value)
+        ? value
+        : AppWidgetSizes.medium;
+    await _savePreference(_preference.copyWith(widgetListSize: safe));
+  }
+
+  Future<void> updateWidgetTimelineSize(String value) async {
+    final safe = AppWidgetSizes.values.contains(value)
+        ? value
+        : AppWidgetSizes.large;
+    await _savePreference(_preference.copyWith(widgetTimelineSize: safe));
   }
 
   Future<void> addApiSource(ApiSourceConfig source) async {

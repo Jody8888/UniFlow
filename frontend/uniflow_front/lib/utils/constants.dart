@@ -255,6 +255,14 @@ class AppSettingsLayouts {
   ];
 }
 
+class AppWidgetSizes {
+  static const String small = 'small';
+  static const String medium = 'medium';
+  static const String large = 'large';
+
+  static const List<String> values = <String>[small, medium, large];
+}
+
 class AppThemePresets {
   static const String xjtuRed = 'xjtu_red';
   static const String oceanBlue = 'ocean_blue';
@@ -280,19 +288,44 @@ class AppThemePresets {
     if (!RegExp(r'^#?[0-9a-fA-F]{6}$').hasMatch(normalized)) {
       return null;
     }
-    final hex = normalized.startsWith('#') ? normalized.substring(1) : normalized;
+    final hex =
+        normalized.startsWith('#') ? normalized.substring(1) : normalized;
     return Color(int.parse('FF$hex', radix: 16));
   }
 }
 
 class DeveloperInfo {
-  static const String teamName = 'UniFlow Frontend';
+  static const String teamName = 'UniFlow';
   static const String version = '1.0.0';
-  static const String maintainer = 'Codex + Project Team';
-  static const String description = '西安交通大学校园通知个性化客户端';
-  static const String contact = 'support@example.com';
-  static const String buyMeACoffeeUrl = 'https://www.buymeacoffee.com/uniflow';
-  static const String afdianUrl = 'https://afdian.com/a/uniflow';
+  static const String maintainer = 'Jung233 & Jody & Thusci';
+  static const String description = """
+本项目由Jung233,Jody,Thusci社员共同开发，旨在将校内分散的通知信息进行统一抓取、结构化处理与时间线化展示，提升信息获取效率。
+
+技术架构：
+基于 Python + FastAPI + PostgreSQL + Flutter 构建，形成完整的前后端一体化解决方案。
+
+核心功能：
+多源通知聚合：支持抓取校内多个信息来源，包括教务处、微信公众号、智慧学生社区等
+时间线化展示：对通知进行统一排序与结构化呈现
+智能信息处理：引入人工智能技术，实现通知内容的自动抓取、筛选与精炼
+
+项目分工：
+  前端开发： Thusci
+  后端开发：
+    爬虫与 API 逆向：Jung233、Jody8888
+    AI 处理与数据库设计：Jody8888、Thusci
+    FastAPI 服务搭建：Jody8888
+
+特别鸣谢：
+  XJTU ANA 社团
+  Silicon Flow
+  Google Antigravity
+  OpenAI Codex
+  Webmin Panel
+  """;
+  static const String contact = 'https://github.com/Jody8888/Uniflow';
+  static const String buyMeACoffeeUrl = 'TBD';
+  static const String afdianUrl = 'TBD';
 }
 
 class AppSpacing {
@@ -362,7 +395,8 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadii.large),
           side: BorderSide(
-            color: isDark ? colorScheme.outlineVariant : const Color(0xFFF0E2D7),
+            color:
+                isDark ? colorScheme.outlineVariant : const Color(0xFFF0E2D7),
           ),
         ),
       ),
@@ -375,7 +409,8 @@ class AppTheme {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.medium),
           borderSide: BorderSide(
-            color: isDark ? colorScheme.outlineVariant : const Color(0xFFE7DACE),
+            color:
+                isDark ? colorScheme.outlineVariant : const Color(0xFFE7DACE),
           ),
         ),
         focusedBorder: OutlineInputBorder(

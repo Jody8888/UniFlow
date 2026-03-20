@@ -102,6 +102,27 @@ class AppDateUtils {
     return published?.add(const Duration(days: 30));
   }
 
+  static DateTime? extractEarliestBusinessTime(NoticeModel notice) {
+    final candidates = <DateTime>[];
+    for (final item in notice.timeline) {
+      for (final entry in item.entries) {
+        if (_businessKeywords.any((keyword) => entry.key.contains(keyword))) {
+          final parsed = parseDateTime(entry.value);
+          if (parsed != null) {
+            candidates.add(parsed);
+          }
+        }
+      }
+    }
+
+    if (candidates.isEmpty) {
+      return null;
+    }
+
+    candidates.sort();
+    return candidates.first;
+  }
+
   static bool isExpired(NoticeModel notice) {
     final latestBusinessTime = extractLatestBusinessTime(notice);
     if (latestBusinessTime == null) {

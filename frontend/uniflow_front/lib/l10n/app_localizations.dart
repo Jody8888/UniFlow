@@ -77,8 +77,19 @@ class AppLocalizations {
       'buyMeCoffee': 'Buy Me a Coffee',
       'afdian': '爱发电',
       'openSupportLinkFailed': '支持链接打开失败',
+      'widgetSettings': '桌面小组件',
+      'widgetPreview': '预览',
+      'widgetListMode': '事件列表小组件',
+      'widgetTimelineMode': '时间线小组件',
+      'listWidgetSize': '列表小组件尺寸',
+      'timelineWidgetSize': '时间线小组件尺寸',
+      'widgetSizeSmall': '小',
+      'widgetSizeMedium': '中',
+      'widgetSizeLarge': '大',
+      'widgetConfigSaved': '桌面小组件设置已更新',
       'timelineView': '时间线',
       'noticeView': '通知',
+      'favoritesView': '收藏',
       'timelineRange': '时间范围',
       'timelineRangeSaved': '默认时间范围已更新',
       'timelineRangeWeek': '近 7 天',
@@ -126,6 +137,24 @@ class AppLocalizations {
       'sortImportance': '重要度',
       'sortDeadline': '截止时间',
       'switchedSort': '已切换为 {value}',
+      'addToFavorites': '加入收藏',
+      'removeFromFavorites': '取消收藏',
+      'favorited': '已收藏',
+      'favoriteEmpty': '还没有收藏通知，可以在通知卡片上点星标。',
+      'selectionMode': '批量选择',
+      'selectedCount': '已选 {value} 项',
+      'batchFavorite': '批量收藏',
+      'batchUnfavorite': '批量取消收藏',
+      'exitSelection': '退出选择',
+      'exportIcs': '导出 ICS',
+      'exportIcsDone': 'ICS 文件已生成，可继续分享或导入日历',
+      'exportIcsFailed': '导出 ICS 失败',
+      'importCalendar': '导入系统日历',
+      'previewFirstEvent': '导入前预览首个事件',
+      'calendarPreviewTitle': '日历格式预览',
+      'calendarImportDone': '已开始导入到系统日历',
+      'calendarImportFailed': '导入系统日历失败',
+      'favoriteUpdated': '{value}收藏状态已更新',
       'noticeDetail': '通知详情',
       'noticeDetailMissing': '通知参数缺失，暂时无法展示详情。',
       'viewOriginal': '查看原文',
@@ -249,8 +278,19 @@ class AppLocalizations {
       'buyMeCoffee': 'Buy Me a Coffee',
       'afdian': 'Afdian',
       'openSupportLinkFailed': 'Failed to open support link',
+      'widgetSettings': 'Widgets',
+      'widgetPreview': 'Preview',
+      'widgetListMode': 'Event List Widget',
+      'widgetTimelineMode': 'Timeline Widget',
+      'listWidgetSize': 'List Widget Size',
+      'timelineWidgetSize': 'Timeline Widget Size',
+      'widgetSizeSmall': 'Small',
+      'widgetSizeMedium': 'Medium',
+      'widgetSizeLarge': 'Large',
+      'widgetConfigSaved': 'Widget settings updated',
       'timelineView': 'Timeline',
       'noticeView': 'Notices',
+      'favoritesView': 'Favorites',
       'timelineRange': 'Time Range',
       'timelineRangeSaved': 'Default timeline range updated',
       'timelineRangeWeek': 'Last 7 Days',
@@ -300,6 +340,24 @@ class AppLocalizations {
       'sortImportance': 'Importance',
       'sortDeadline': 'Deadline',
       'switchedSort': 'Switched to {value}',
+      'addToFavorites': 'Add to Favorites',
+      'removeFromFavorites': 'Remove Favorite',
+      'favorited': 'Favorited',
+      'favoriteEmpty': 'No favorite notices yet. Tap the star on a notice card to collect one.',
+      'selectionMode': 'Selection Mode',
+      'selectedCount': '{value} selected',
+      'batchFavorite': 'Favorite Selected',
+      'batchUnfavorite': 'Remove Selected',
+      'exitSelection': 'Exit Selection',
+      'exportIcs': 'Export ICS',
+      'exportIcsDone': 'ICS file created. You can share or import it next.',
+      'exportIcsFailed': 'Failed to export ICS',
+      'importCalendar': 'Import to Calendar',
+      'previewFirstEvent': 'Preview First Event',
+      'calendarPreviewTitle': 'Calendar Preview',
+      'calendarImportDone': 'Started importing into the system calendar',
+      'calendarImportFailed': 'Failed to import into system calendar',
+      'favoriteUpdated': 'Favorite state updated for {value}',
       'noticeDetail': 'Notice Details',
       'noticeDetailMissing': 'Notice arguments are missing, so details cannot be shown.',
       'viewOriginal': 'Open Original',
@@ -558,6 +616,7 @@ class AppLocalizations {
   String get read => _value('read');
   String get retryLoad => _value('retryLoad');
   String get noticeView => _value('noticeView');
+  String get favoritesView => _value('favoritesView');
   String get timelineView => _value('timelineView');
   String get timelineRange => _value('timelineRange');
   String get timelineRangeSaved => _value('timelineRangeSaved');
@@ -584,6 +643,30 @@ class AppLocalizations {
   String get buyMeCoffee => _value('buyMeCoffee');
   String get afdian => _value('afdian');
   String get openSupportLinkFailed => _value('openSupportLinkFailed');
+  String get widgetSettings => _value('widgetSettings');
+  String get widgetPreview => _value('widgetPreview');
+  String get widgetListMode => _value('widgetListMode');
+  String get widgetTimelineMode => _value('widgetTimelineMode');
+  String get listWidgetSize => _value('listWidgetSize');
+  String get timelineWidgetSize => _value('timelineWidgetSize');
+  String get addToFavorites => _value('addToFavorites');
+  String get removeFromFavorites => _value('removeFromFavorites');
+  String get favorited => _value('favorited');
+  String get favoriteEmpty => _value('favoriteEmpty');
+  String get selectionMode => _value('selectionMode');
+  String selectedCount(String value) => _format('selectedCount', value);
+  String get batchFavorite => _value('batchFavorite');
+  String get batchUnfavorite => _value('batchUnfavorite');
+  String get exitSelection => _value('exitSelection');
+  String get exportIcs => _value('exportIcs');
+  String get exportIcsDone => _value('exportIcsDone');
+  String get exportIcsFailed => _value('exportIcsFailed');
+  String get importCalendar => _value('importCalendar');
+  String get previewFirstEvent => _value('previewFirstEvent');
+  String get calendarPreviewTitle => _value('calendarPreviewTitle');
+  String get calendarImportDone => _value('calendarImportDone');
+  String get calendarImportFailed => _value('calendarImportFailed');
+  String favoriteUpdated(String value) => _format('favoriteUpdated', value);
   String addedApiSourceMessage(String value) => _format('addedApiSourceMessage', value);
   String updatedApiSourceMessage(String value) => _format('updatedApiSourceMessage', value);
   String removedApiSourceMessage(String value) => _format('removedApiSourceMessage', value);
@@ -598,6 +681,18 @@ class AppLocalizations {
   String get noSummary => _value('noSummary');
   String get defaultKeywords => _value('defaultKeywords');
   String get publishedLabel => _value('publishedLabel');
+
+  String widgetSizeLabel(String value) {
+    switch (value) {
+      case AppWidgetSizes.small:
+        return _value('widgetSizeSmall');
+      case AppWidgetSizes.large:
+        return _value('widgetSizeLarge');
+      case AppWidgetSizes.medium:
+      default:
+        return _value('widgetSizeMedium');
+    }
+  }
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

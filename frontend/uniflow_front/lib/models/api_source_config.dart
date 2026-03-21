@@ -1,10 +1,11 @@
-class ApiSourceConfig {
+﻿class ApiSourceConfig {
   const ApiSourceConfig({
     required this.id,
     required this.name,
     required this.baseUrl,
     required this.noticePath,
     required this.useMockData,
+    this.apiKey = '',
   });
 
   final String id;
@@ -12,6 +13,7 @@ class ApiSourceConfig {
   final String baseUrl;
   final String noticePath;
   final bool useMockData;
+  final String apiKey;
 
   factory ApiSourceConfig.mock() {
     return const ApiSourceConfig(
@@ -20,6 +22,7 @@ class ApiSourceConfig {
       baseUrl: 'https://example.com',
       noticePath: '/api/events',
       useMockData: true,
+      apiKey: '',
     );
   }
 
@@ -36,6 +39,7 @@ class ApiSourceConfig {
           ? json['noticePath'].toString().trim()
           : '/api/events',
       useMockData: json['useMockData'] == true,
+      apiKey: json['apiKey']?.toString().trim() ?? '',
     );
   }
 
@@ -46,6 +50,7 @@ class ApiSourceConfig {
       'baseUrl': baseUrl,
       'noticePath': noticePath,
       'useMockData': useMockData,
+      'apiKey': apiKey,
     };
   }
 
@@ -55,6 +60,7 @@ class ApiSourceConfig {
     String? baseUrl,
     String? noticePath,
     bool? useMockData,
+    String? apiKey,
   }) {
     return ApiSourceConfig(
       id: id ?? this.id,
@@ -62,6 +68,7 @@ class ApiSourceConfig {
       baseUrl: baseUrl ?? this.baseUrl,
       noticePath: noticePath ?? this.noticePath,
       useMockData: useMockData ?? this.useMockData,
+      apiKey: apiKey ?? this.apiKey,
     );
   }
 

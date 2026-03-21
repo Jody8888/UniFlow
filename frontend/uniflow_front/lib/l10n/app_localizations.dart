@@ -207,6 +207,8 @@ class AppLocalizations {
       'name': '名称',
       'baseUrl': 'Base URL',
       'noticePath': '通知路径',
+      'apiKey': 'API Key',
+      'apiKeyHint': '留空则直接连接；有值时通过 X-API-Key 发送',
       'useMockData': '使用 Mock 数据',
       'save': '保存',
       'addedApiSourceMessage': '已添加 API 源 {value}',
@@ -418,6 +420,8 @@ class AppLocalizations {
       'name': 'Name',
       'baseUrl': 'Base URL',
       'noticePath': 'Notice Path',
+      'apiKey': 'API Key',
+      'apiKeyHint': 'Leave empty for direct access; when provided it is sent as X-API-Key',
       'useMockData': 'Use Mock Data',
       'save': 'Save',
       'addedApiSourceMessage': 'Added API source {value}',
@@ -659,6 +663,8 @@ class AppLocalizations {
   String get name => _value('name');
   String get baseUrl => _value('baseUrl');
   String get noticePath => _value('noticePath');
+  String get apiKey => _value('apiKey');
+  String get apiKeyHint => _value('apiKeyHint');
   String get useMockData => _value('useMockData');
   String get save => _value('save');
   String get supportProject => _value('supportProject');

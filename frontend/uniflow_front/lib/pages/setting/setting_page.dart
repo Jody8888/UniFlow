@@ -739,6 +739,7 @@ class _SettingPageState extends State<SettingPage> {
     final nameController = TextEditingController(text: source?.name ?? '');
     final baseUrlController = TextEditingController(text: source?.baseUrl ?? '');
     final pathController = TextEditingController(text: source?.noticePath ?? AppConstants.noticePath);
+    final apiKeyController = TextEditingController(text: source?.apiKey ?? '');
     var useMockData = source?.useMockData ?? false;
 
     final result = await showDialog<ApiSourceConfig>(
@@ -757,6 +758,14 @@ class _SettingPageState extends State<SettingPage> {
                     TextField(controller: baseUrlController, decoration: InputDecoration(labelText: l10n.baseUrl)),
                     const SizedBox(height: AppSpacing.medium),
                     TextField(controller: pathController, decoration: InputDecoration(labelText: l10n.noticePath)),
+                    const SizedBox(height: AppSpacing.medium),
+                    TextField(
+                      controller: apiKeyController,
+                      decoration: InputDecoration(
+                        labelText: l10n.apiKey,
+                        hintText: l10n.apiKeyHint,
+                      ),
+                    ),
                     const SizedBox(height: AppSpacing.medium),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
@@ -784,6 +793,7 @@ class _SettingPageState extends State<SettingPage> {
                       baseUrl: baseUrl,
                       noticePath: noticePath,
                       useMockData: useMockData,
+                      apiKey: apiKeyController.text.trim(),
                     );
                     Navigator.of(dialogContext).pop(next);
                   },

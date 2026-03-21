@@ -28,6 +28,11 @@ class ApiService {
   void updateSource(ApiSourceConfig source) {
     _activeSource = source;
     _dio.options.baseUrl = source.baseUrl;
+    if (source.apiKey.trim().isEmpty) {
+      _dio.options.headers.remove('X-API-Key');
+    } else {
+      _dio.options.headers['X-API-Key'] = source.apiKey.trim();
+    }
   }
 
   Future<List<NoticeModel>> fetchNotices({

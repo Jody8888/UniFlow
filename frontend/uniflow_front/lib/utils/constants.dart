@@ -465,13 +465,23 @@ class AppTheme {
       brightness: brightness,
     );
     final isDark = brightness == Brightness.dark;
-    final resolvedBackground =
-        backgroundColor ?? (isDark ? colorScheme.surface : AppColors.surface);
-    final resolvedForeground = foregroundColor ??
-        (isDark ? colorScheme.onSurface : AppColors.textPrimary);
+    final requestedBackground = backgroundColor ?? AppColors.surface;
+    final requestedForeground = foregroundColor ?? AppColors.textPrimary;
+    final resolvedBackground = isDark
+        ? Color.alphaBlend(
+            requestedBackground.withValues(alpha: 0.12),
+            colorScheme.surface,
+          )
+        : requestedBackground;
+    final resolvedForeground = isDark
+        ? Color.alphaBlend(
+            requestedForeground.withValues(alpha: 0.18),
+            colorScheme.onSurface,
+          )
+        : requestedForeground;
     final cardColor = isDark
         ? Color.alphaBlend(
-            Colors.white.withValues(alpha: 0.04),
+            colorScheme.surfaceContainerHighest.withValues(alpha: 0.56),
             resolvedBackground,
           )
         : Colors.white;
@@ -511,9 +521,15 @@ class AppTheme {
           ),
         ),
       ),
+      dialogTheme: DialogThemeData(backgroundColor: cardColor),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: isDark ? softBackground : Colors.white,
+        fillColor: isDark
+            ? Color.alphaBlend(
+                colorScheme.surfaceContainerHigh.withValues(alpha: 0.72),
+                resolvedBackground,
+              )
+            : Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.medium),
         ),
@@ -536,6 +552,10 @@ class AppTheme {
         backgroundColor: softBackground,
         selectedColor: colorScheme.primaryContainer,
         labelStyle: TextStyle(color: resolvedForeground),
+      ),
+      listTileTheme: ListTileThemeData(
+        textColor: resolvedForeground,
+        iconColor: resolvedForeground.withValues(alpha: 0.86),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,

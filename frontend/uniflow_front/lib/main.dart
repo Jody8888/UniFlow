@@ -46,6 +46,7 @@ class AppBootstrap {
     await noticeProvider.initialize(
       studentInfo: userProvider.studentInfo,
       preference: userProvider.preference,
+      deferRemoteRefresh: true,
     );
 
     userProvider.addListener(() {

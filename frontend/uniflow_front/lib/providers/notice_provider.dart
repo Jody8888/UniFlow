@@ -49,6 +49,7 @@ class NoticeProvider extends ChangeNotifier {
   Future<void> initialize({
     required StudentInfo? studentInfo,
     required UserPreference preference,
+    bool deferRemoteRefresh = false,
   }) async {
     _studentInfo = studentInfo;
     _preference = preference;
@@ -61,6 +62,15 @@ class NoticeProvider extends ChangeNotifier {
     _resort();
     _initialized = true;
     notifyListeners();
+
+    if (deferRemoteRefresh) {
+      unawaited(
+        Future<void>.microtask(
+          () => refreshNotices(showLoading: _rawNotices.isEmpty),
+        ),
+      );
+      return;
+    }
 
     await refreshNotices(showLoading: _rawNotices.isEmpty);
   }

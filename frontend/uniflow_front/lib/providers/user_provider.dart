@@ -22,8 +22,12 @@ class UserProvider extends ChangeNotifier {
   bool get initialized => _initialized;
 
   Future<void> initialize() async {
-    _studentInfo = await _storageService.loadStudentInfo();
-    _preference = await _storageService.loadPreference();
+    final results = await Future.wait<dynamic>([
+      _storageService.loadStudentInfo(),
+      _storageService.loadPreference(),
+    ]);
+    _studentInfo = results[0] as StudentInfo?;
+    _preference = results[1] as UserPreference;
     _initialized = true;
     notifyListeners();
   }

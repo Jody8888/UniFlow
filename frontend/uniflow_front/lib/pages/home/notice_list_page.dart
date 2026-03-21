@@ -177,6 +177,14 @@ class _NoticeListPageState extends State<NoticeListPage>
     _showMessage(context.l10n.favoriteUpdated(notice.title));
   }
 
+  void _applySearch(String value) {
+    final normalized = value.trim();
+    _searchController.text = normalized;
+    setState(() {
+      _searchQuery = normalized;
+    });
+  }
+
   void _toggleSelection(String noticeId) {
     setState(() {
       if (_selectedNoticeIds.contains(noticeId)) {
@@ -412,7 +420,6 @@ class _NoticeListPageState extends State<NoticeListPage>
                 noticeProvider,
                 userProvider,
                 studentInfo,
-                notices,
                 filteredNotices,
                 currentSortMode,
                 currentSortAscending,
@@ -442,13 +449,11 @@ class _NoticeListPageState extends State<NoticeListPage>
     NoticeProvider noticeProvider,
     UserProvider userProvider,
     StudentInfo? studentInfo,
-    List<NoticeModel> allNotices,
     List<NoticeModel> notices,
     String currentSortMode,
     bool currentSortAscending,
   ) {
     final l10n = context.l10n;
-    final topTags = _topTags(allNotices);
     return Column(
       children: [
         Padding(
@@ -499,31 +504,6 @@ class _NoticeListPageState extends State<NoticeListPage>
                   ),
                 ],
               ),
-              if (topTags.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.small),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Wrap(
-                    spacing: AppSpacing.small,
-                    runSpacing: AppSpacing.small,
-                    children: topTags.map((tag) {
-                      final selected =
-                          _searchQuery.toLowerCase() == tag.toLowerCase();
-                      return _AdaptiveActionChip(
-                        label: '#$tag',
-                        selected: selected,
-                        onTap: () {
-                          final nextValue = selected ? '' : tag;
-                          _searchController.text = nextValue;
-                          setState(() {
-                            _searchQuery = nextValue;
-                          });
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
             ],
           ),
         ),
@@ -618,6 +598,7 @@ class _NoticeListPageState extends State<NoticeListPage>
             onTap: () => _openNoticeDetail(notice),
             onMarkDislike: () => _openDislikeDialog(notice.genre),
             onToggleFavorite: () => _toggleFavorite(notice),
+            onSearchTap: _applySearch,
             selectionMode: _selectionMode,
             selected: _selectedNoticeIds.contains(notice.id),
             onSelectionToggle: () => _selectionMode
@@ -656,6 +637,7 @@ class _NoticeListPageState extends State<NoticeListPage>
           onTap: () => _openNoticeDetail(notice),
           onMarkDislike: () => _openDislikeDialog(notice.genre),
           onToggleFavorite: () => _toggleFavorite(notice),
+          onSearchTap: _applySearch,
           selectionMode: _selectionMode,
           selected: _selectedNoticeIds.contains(notice.id),
           onSelectionToggle: () => _selectionMode
@@ -686,21 +668,6 @@ class _NoticeListPageState extends State<NoticeListPage>
     }).toList();
   }
 
-  List<String> _topTags(List<NoticeModel> notices) {
-    final counts = <String, int>{};
-    for (final notice in notices) {
-      for (final tag in notice.keywordList) {
-        final normalized = tag.trim();
-        if (normalized.isEmpty) {
-          continue;
-        }
-        counts.update(normalized, (value) => value + 1, ifAbsent: () => 1);
-      }
-    }
-    final sorted = counts.entries.toList()
-      ..sort((left, right) => right.value.compareTo(left.value));
-    return sorted.take(8).map((item) => item.key).toList();
-  }
 }
 
 class _AdaptiveActionChip extends StatelessWidget {
@@ -708,64 +675,58 @@ class _AdaptiveActionChip extends StatelessWidget {
     required this.label,
     required this.selected,
     this.icon,
-    this.onTap,
   });
 
   final String label;
   final bool selected;
   final IconData? icon;
-  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Material(
       color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(999),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.medium,
-            vertical: 10,
-          ),
-          decoration: BoxDecoration(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.medium,
+          vertical: 10,
+        ),
+        decoration: BoxDecoration(
+          color: selected
+              ? colorScheme.primaryContainer
+              : colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
             color: selected
-                ? colorScheme.primaryContainer
-                : colorScheme.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(
-              color: selected
-                  ? colorScheme.primary.withValues(alpha: 0.34)
-                  : colorScheme.outlineVariant,
-            ),
+                ? colorScheme.primary.withValues(alpha: 0.34)
+                : colorScheme.outlineVariant,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                Icon(
-                  icon,
-                  size: 16,
-                  color: selected
-                      ? colorScheme.onPrimaryContainer
-                      : colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 6),
-              ],
-              Text(
-                label,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: selected
-                          ? colorScheme.onPrimaryContainer
-                          : colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w600,
-                    ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 16,
+                color: selected
+                    ? colorScheme.onPrimaryContainer
+                    : colorScheme.onSurfaceVariant,
               ),
+              const SizedBox(width: 6),
             ],
-          ),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: selected
+                        ? colorScheme.onPrimaryContainer
+                        : colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ],
         ),
       ),
     );

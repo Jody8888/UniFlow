@@ -14,6 +14,7 @@ class NoticeCard extends StatelessWidget {
     required this.onTap,
     required this.onMarkDislike,
     required this.onToggleFavorite,
+    this.onSearchTap,
     this.selectionMode = false,
     this.selected = false,
     this.onSelectionToggle,
@@ -25,6 +26,7 @@ class NoticeCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onMarkDislike;
   final VoidCallback onToggleFavorite;
+  final ValueChanged<String>? onSearchTap;
   final bool selectionMode;
   final bool selected;
   final VoidCallback? onSelectionToggle;
@@ -157,14 +159,33 @@ class NoticeCard extends StatelessWidget {
                       _InfoChip(
                         label: notice.genre,
                         backgroundColor: AppColors.genreChip,
+                        onTap: onSearchTap == null
+                            ? null
+                            : () => onSearchTap!(notice.genre),
                       ),
                       _InfoChip(
                         label: notice.source,
                         backgroundColor: AppColors.sourceChip,
+                        onTap: onSearchTap == null
+                            ? null
+                            : () => onSearchTap!(notice.source),
                       ),
                       _InfoChip(
                         label: l10n.importance('${notice.importance}'),
                         backgroundColor: importanceStyle.backgroundColor,
+                        onTap: onSearchTap == null
+                            ? null
+                            : () => onSearchTap!('${notice.importance}'),
+                      ),
+                      ...notice.keywordList.take(3).map(
+                        (tag) => _InfoChip(
+                          label: '#$tag',
+                          backgroundColor: colorScheme.secondaryContainer
+                              .withValues(alpha: 0.72),
+                          onTap: onSearchTap == null
+                              ? null
+                              : () => onSearchTap!(tag),
+                        ),
                       ),
                       if (isExpired)
                         _InfoChip(
@@ -252,23 +273,32 @@ class _InfoChip extends StatelessWidget {
   const _InfoChip({
     required this.label,
     required this.backgroundColor,
+    this.onTap,
   });
 
   final String label;
   final Color backgroundColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.small,
-        vertical: 6,
-      ),
-      decoration: BoxDecoration(
-        color: backgroundColor,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadii.small),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.small,
+            vertical: 6,
+          ),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(AppRadii.small),
+          ),
+          child: Text(label, style: Theme.of(context).textTheme.labelMedium),
+        ),
       ),
-      child: Text(label, style: Theme.of(context).textTheme.labelMedium),
     );
   }
 }

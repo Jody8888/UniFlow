@@ -8,8 +8,12 @@ import '../models/user_preference.dart';
 import '../utils/constants.dart';
 
 class StorageService {
+  StorageService() : _prefsFuture = SharedPreferences.getInstance();
+
+  final Future<SharedPreferences> _prefsFuture;
+
   Future<void> saveNotices(List<NoticeModel> notices) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefsFuture;
     final payload = notices.map((notice) => notice.toJson()).toList();
     await prefs.setString(
       AppStorageKeys.noticeCache,
@@ -18,7 +22,7 @@ class StorageService {
   }
 
   Future<List<NoticeModel>> loadNotices() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefsFuture;
     final raw = prefs.getString(AppStorageKeys.noticeCache);
     if (raw == null || raw.isEmpty) {
       return <NoticeModel>[];
@@ -43,12 +47,12 @@ class StorageService {
   }
 
   Future<void> clearNoticeCache() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefsFuture;
     await prefs.remove(AppStorageKeys.noticeCache);
   }
 
   Future<void> saveStudentInfo(StudentInfo? studentInfo) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefsFuture;
     if (studentInfo == null) {
       await prefs.remove(AppStorageKeys.studentInfo);
       return;
@@ -60,7 +64,7 @@ class StorageService {
   }
 
   Future<StudentInfo?> loadStudentInfo() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefsFuture;
     final raw = prefs.getString(AppStorageKeys.studentInfo);
     if (raw == null || raw.isEmpty) {
       return null;
@@ -81,7 +85,7 @@ class StorageService {
   }
 
   Future<void> savePreference(UserPreference preference) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefsFuture;
     await prefs.setString(
       AppStorageKeys.preference,
       jsonEncode(preference.toJson()),
@@ -89,7 +93,7 @@ class StorageService {
   }
 
   Future<UserPreference> loadPreference() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefsFuture;
     final raw = prefs.getString(AppStorageKeys.preference);
     if (raw == null || raw.isEmpty) {
       return UserPreference.empty();
@@ -110,7 +114,7 @@ class StorageService {
   }
 
   Future<void> resetAll() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefsFuture;
     await prefs.remove(AppStorageKeys.noticeCache);
     await prefs.remove(AppStorageKeys.studentInfo);
     await prefs.remove(AppStorageKeys.preference);

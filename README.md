@@ -1,56 +1,213 @@
-# UniFlow:高效的校园信息聚合平台
+# 🚀 UniFlow — 校内通知时间线统一推流系统
 
-## TODOs and Workflow [todos.md](./todos.md)
-| Task | Description | Readme file | Assigned to |
-| ----- | ----------- | ----------- | ----------- |
-| - [x] [Backend] Html fetcher | 爬取原生Html内容 | [README.MD](./backend/fetch/README.MD) | jung233 Jody Thusci  |
-| - [x] [Backend] AI processor | 转发原始文本至Qwen2.5-7B-Instruct进行结构化处理后存入服务端Postgres数据库 | [README.md](./backend/store/README.md) | Thusci |
-| - [x] [Backend] Notification api | 基于 FastAPI面向前端和小程序提供的 RESTful 接口。 | [readme.md](./backend/api/README.md) | Jody |
-| - [ ] [Backend] CalDAV Service | 基于CalDAV实现的日历推送 | [PENDING] | [PENDING] |
-| - [x] [Frontend] Android frontend | 事件日历与待办功能 | [README.md](./frontend/uniflow_front/README.md) | Thusci |
-| - [x] [Frontend] iOS frontend | 事件日历与待办功能 | [README.md](./frontend/uniflow_front/README.md) | Thusci |
-| - [x] [Frontend & Backend] Feed management site | 管理爬取/推送流程 | [Webmin] | [Webmin] |
+<p align="center">
+  <img src="assets/banner.png" width="100%" />
+</p>
 
-## [支持的网站](./doi.md)
+<p align="center">
+  <b>聚合 · 精炼 · 时间线化</b><br/>
+  <sub>让校内信息获取更高效</sub>
+</p>
 
-## Repo map:
+<p align="center">
+  <img src="https://img.shields.io/github/stars/Jody8888/UniFlow?style=for-the-badge" />
+  <img src="https://img.shields.io/github/forks/Jody8888/UniFlow?style=for-the-badge" />
+  <img src="https://img.shields.io/github/issues/Jody8888/UniFlow?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Flutter-App-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/FastAPI-Backend-green?style=for-the-badge" />
+</p>
+
+---
+
+## ✨ 项目简介
+
+**UniFlow** 是一个面向高校的信息流平台，旨在解决校内通知分散、信息冗余、获取效率低的问题。
+
+通过 **多源抓取 + AI 智能处理 + 时间线化展示**，将分散的通知转化为清晰、结构化的信息流，让用户不错过任何重要信息。
+
+---
+
+## ⚠️ 当前适用范围
+
+> 📌 **本项目当前仅适用于西安交通大学（XJTU）校内信息系统。**
+
+由于不同高校的信息系统结构差异较大，当前数据源与解析逻辑基于 XJTU 定制开发。
+
+👉 **欢迎其他高校或开发者联系进行适配与扩展！**
+
+---
+
+## 🎯 核心亮点
+
+* 📡 **多源统一聚合** — 打破信息孤岛
+* 🧠 **AI 智能精炼** — 自动提取关键信息
+* 🕒 **时间线视图** — 基于 Deadline 的信息组织
+* ⚡ **高效信息获取** — 显著降低信息噪音
+
+---
+
+## 📱 应用截图
+
+<p align="center">
+  <img src="assets/screenshots/list.png" width="22%" />
+  <img src="assets/screenshots/detail.png" width="22%" />
+  <img src="assets/screenshots/timeline.png" width="22%" />
+  <img src="assets/screenshots/favorite.png" width="22%" />
+</p>
+
+---
+
+## 📦 下载
+
+<p align="center">
+  <a href="https://github.com/Jody8888/UniFlow/releases">
+    <img src="https://img.shields.io/badge/Download-APK-blue?style=for-the-badge&logo=android"/>
+  </a>
+</p>
+
+---
+
+## 🧠 AI 能力
+
+UniFlow 引入人工智能技术，实现：
+
+* 📥 自动抓取与解析通知
+* 🧹 信息去噪与结构化处理
+* ✂️ 内容摘要生成
+* ⚖️ 基于权重的优先级排序
+
+---
+
+## 🧩 功能一览
+
+### 📄 通知列表
+
+* 个性化排序
+* 最新 / 重要 / 截止时间排序
+* 🔍 关键词搜索
+
+### 📑 通知详情
+
+* 结构化展示
+* 原始来源跳转
+
+### ⭐ 收藏系统
+
+* 收藏重要通知
+* 📅 导出 `.ics`
+* 📲 导入系统日历（开发中）
+
+### 🕒 时间线
+
+* 基于 Deadline 的可视化
+* 关键节点标注
+
+### ⚙️ 个性化设置
+
+* 自定义主题颜色
+* 多语言支持
+* API / API Key 可配置
+* 自动刷新机制
+
+---
+
+## 🏗️ 技术架构
+
+```text id="arch1"
+Frontend  → Flutter
+Backend   → FastAPI (Python)
+Database  → PostgreSQL
+Data      → 爬虫 + API 逆向
+AI        → 信息精炼与结构化
 ```
-├── README.md                               #Uniflow程序文档
-├── requirements.txt                        #Python组件表
-├── doi.md                                  #目前支持的域名
-├── .updateignore                           #服务端自动更新忽略文件列表
-├── backend                                 #后端部分
-│   ├── api                                 #FastAPI推送
-│   │   ├── main.py                             #FastAPI主程序
-│   │   └── README.md                           #FastAPI文档
-│   ├── fetch                               #HTML爬取器
-│   │   ├── README.MD                           #爬取器文档
-│   │   ├── api_fetcher.py                      #独立的 JSON API 数据源抓取模块，处理无法用 HTML + XPath 抓取的数据源
-│   │   ├── config_json                         #各个网站对应的json配置文件
-│   │   │   ├── bjb.xjtu.edu.cn.json                #钱学森书院
-│   │   │   ├── bw.xjtu.edu.cn.json                 #保卫处
-│   │   │   ├── cy.xjtu.edu.cn.json                 #仲英书院
-│   │   │   ├── dean.xjtu.edu.cn.json               #教务处
-│   │   │   ├── jwc.xjtu.edu.cn.1.json              #教务处
-│   │   │   ├── jwc.xjtu.edu.cn.2.json              #教务处
-│   │   │   ├── lizhi.xjtu.edu.cn.json              #励志书院
-│   │   │   ├── nanyang.xjtu.edu.cn.json            #南洋书院
-│   │   │   ├── nic.xjtu.edu.cn.json                #网信中心
-│   │   │   ├── oa.xjtu.edu.cn.json                 #办公系统
-│   │   │   ├── pec.xjtu.edu.cn.dcxm.json           #
-│   │   │   ├── pec.xjtu.edu.cn.js.json             #实践教学中心（工程坊）
-│   │   │   ├── pksy.xjtu.edu.cn.json               #彭康书院
-│   │   │   ├── sfs.xjtu.edu.cn.json                #外国语学院
-│   │   │   └── zlsy.xjtu.edu.cn.json               #宗濂书院
-│   │   ├── config.py                           #配置文件载入器
-│   │   ├── fetcher.py                          #爬取器
-│   │   ├── http_client.py                      #HTTP客户端（承担网页访问）
-│   │   ├── __init__.py                         #
-│   │   ├── main.py                             #仅用于开发调试的单配置运行入口（非业务集成方式）
-│   │   ├── parser.py                           #XPath/文本/链接解析工具
-│   │   └── test_all.py                         #
-│   └── store                               #存储到数据库
-│       ├── README.md                           #存入功能文档
-└─      └── store.py                            #存入功能主程序
 
-```
+---
+
+
+## 👥 Contributors
+
+> 成员按 **字母顺序排列（alphabetical order）**，不代表贡献大小或重要性。
+
+### 🧑‍💻 核心成员
+
+| 模块              | 负责人               |
+| --------------- | ----------------- |
+| 前端（Flutter）     | **Thusci**            |
+| 后端（FastAPI）     | **Jody8888**          |
+| 爬虫系统            | **Jung233, Jody8888** |
+| AI处理            | **Jody8888, Thusci**  |
+| 数据库（PostgreSQL） | **Thusci**         |
+
+
+---
+
+## ☕ 支持项目
+
+如果这个项目对你有帮助，欢迎支持我们 ❤️
+
+### Buy Me a Coffee
+
+👉 https://www.buymeacoffee.com/thusci
+
+### 爱发电
+
+👉 https://ifdian.net/thusci
+
+---
+
+## 🤝 合作与扩展
+
+UniFlow 具备良好的可扩展架构，支持接入不同高校的信息系统。
+
+如果你：
+
+* 🎓 来自其他高校
+* 🧑‍💻 想参与开发
+* 🏫 希望部署到自己的学校
+
+👉 欢迎通过 Issue 或联系作者进行合作！
+
+---
+
+## 🙏 特别鸣谢
+
+* XJTU ANA 社团
+* Silicon Flow
+* Google Antigravity
+* OpenAI Codex
+* Webmin Panel
+
+---
+
+## 📌 Roadmap
+
+* [ ] 日历同步完善
+* [ ] 推送通知系统
+* [ ] Web 端支持
+* [ ] AI 推荐优化
+* [ ] 多高校适配支持
+
+---
+
+## 📄 版权声明
+
+Copyright (c) 2026 UniFlow Project Authors
+
+All rights reserved.
+
+本项目及其源代码归作者所有，未经许可不得复制、修改、分发或用于商业用途。
+
+---
+
+## 🌟 Star 趋势
+
+<p align="center">
+  <img src="https://api.star-history.com/svg?repos=Jody8888/UniFlow&type=Date" width="80%" />
+</p>
+
+---
+
+## 🚀 项目愿景
+
+构建一个统一、高效、智能的校内信息流平台，
+推动高校信息获取方式的升级。

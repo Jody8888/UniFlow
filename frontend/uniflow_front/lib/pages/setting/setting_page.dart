@@ -406,12 +406,23 @@ class _SettingPageState extends State<SettingPage> {
           initialValue: preference.themePreset,
           decoration: InputDecoration(labelText: l10n.themePreset),
           items: AppThemePresets.values.map((value) {
-            final seedColor = AppThemePresets.seedColors[value] ?? AppColors.brandPrimary;
+            final seedColor = AppThemePresets.seedColorOf(value);
+            final backgroundColor = AppThemePresets.backgroundColorOf(value);
             return DropdownMenuItem<String>(
               value: value,
               child: Row(
                 children: [
                   Container(width: 14, height: 14, decoration: BoxDecoration(color: seedColor, shape: BoxShape.circle)),
+                  const SizedBox(width: AppSpacing.small),
+                  Container(
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: backgroundColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.black12),
+                    ),
+                  ),
                   const SizedBox(width: AppSpacing.small),
                   Text(l10n.themePresetLabel(value)),
                 ],
@@ -432,15 +443,84 @@ class _SettingPageState extends State<SettingPage> {
         const SizedBox(height: AppSpacing.medium),
         Card(
           child: ListTile(
-            title: Text(l10n.customThemeColor),
-            subtitle: Text(preference.customThemeColorHex ?? l10n.themePresetLabel(preference.themePreset)),
+            title: Text(l10n.themeAccentColor),
+            subtitle: Text(
+              preference.customThemeColorHex ??
+                  AppThemePresets.toHex(
+                    AppThemePresets.seedColorOf(preference.themePreset),
+                  ),
+            ),
+            leading: _ColorPreview(
+              color: AppThemePresets.parseHexColor(
+                    preference.customThemeColorHex,
+                  ) ??
+                  AppThemePresets.seedColorOf(preference.themePreset),
+            ),
             trailing: FilledButton.tonal(
-              onPressed: () => _editCustomThemeColor(context, userProvider),
+              onPressed: () => _editThemeColor(
+                context,
+                userProvider,
+                colorRole: _ThemeColorRole.seed,
+              ),
               child: Text(l10n.choose),
             ),
           ),
         ),
-        if (preference.customThemeColorHex != null)
+        const SizedBox(height: AppSpacing.small),
+        Card(
+          child: ListTile(
+            title: Text(l10n.themeForegroundColor),
+            subtitle: Text(
+              preference.customForegroundColorHex ??
+                  AppThemePresets.toHex(
+                    AppThemePresets.foregroundColorOf(preference.themePreset),
+                  ),
+            ),
+            leading: _ColorPreview(
+              color: AppThemePresets.parseHexColor(
+                    preference.customForegroundColorHex,
+                  ) ??
+                  AppThemePresets.foregroundColorOf(preference.themePreset),
+            ),
+            trailing: FilledButton.tonal(
+              onPressed: () => _editThemeColor(
+                context,
+                userProvider,
+                colorRole: _ThemeColorRole.foreground,
+              ),
+              child: Text(l10n.choose),
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.small),
+        Card(
+          child: ListTile(
+            title: Text(l10n.themeBackgroundColor),
+            subtitle: Text(
+              preference.customBackgroundColorHex ??
+                  AppThemePresets.toHex(
+                    AppThemePresets.backgroundColorOf(preference.themePreset),
+                  ),
+            ),
+            leading: _ColorPreview(
+              color: AppThemePresets.parseHexColor(
+                    preference.customBackgroundColorHex,
+                  ) ??
+                  AppThemePresets.backgroundColorOf(preference.themePreset),
+            ),
+            trailing: FilledButton.tonal(
+              onPressed: () => _editThemeColor(
+                context,
+                userProvider,
+                colorRole: _ThemeColorRole.background,
+              ),
+              child: Text(l10n.choose),
+            ),
+          ),
+        ),
+        if (preference.customThemeColorHex != null ||
+            preference.customForegroundColorHex != null ||
+            preference.customBackgroundColorHex != null)
           Padding(
             padding: const EdgeInsets.only(top: AppSpacing.small),
             child: Align(
@@ -448,6 +528,8 @@ class _SettingPageState extends State<SettingPage> {
               child: TextButton(
                 onPressed: () async {
                   await userProvider.updateCustomThemeColor(null);
+                  await userProvider.updateCustomForegroundColor(null);
+                  await userProvider.updateCustomBackgroundColor(null);
                   if (!mounted) {
                     return;
                   }
@@ -772,20 +854,45 @@ class _SettingPageState extends State<SettingPage> {
     _showMessage(messenger, l10n.updatedGenreWeight(genre));
   }
 
-  Future<void> _editCustomThemeColor(BuildContext context, UserProvider userProvider) async {
+  Future<void> _editThemeColor(
+    BuildContext context,
+    UserProvider userProvider, {
+    required _ThemeColorRole colorRole,
+  }) async {
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
-    final controller = TextEditingController(text: userProvider.preference.customThemeColorHex ?? '');
-    final result = await showDialog<String>(
+    final preference = userProvider.preference;
+    final Color initialColor;
+    switch (colorRole) {
+      case _ThemeColorRole.foreground:
+        initialColor = AppThemePresets.parseHexColor(
+              preference.customForegroundColorHex,
+            ) ??
+            AppThemePresets.foregroundColorOf(preference.themePreset);
+        break;
+      case _ThemeColorRole.background:
+        initialColor = AppThemePresets.parseHexColor(
+              preference.customBackgroundColorHex,
+            ) ??
+            AppThemePresets.backgroundColorOf(preference.themePreset);
+        break;
+      case _ThemeColorRole.seed:
+        initialColor = AppThemePresets.parseHexColor(
+              preference.customThemeColorHex,
+            ) ??
+            AppThemePresets.seedColorOf(preference.themePreset);
+        break;
+    }
+    final result = await showDialog<Color>(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(l10n.customThemeColor),
-          content: TextField(controller: controller, decoration: InputDecoration(labelText: l10n.customThemeColorHint)),
-          actions: [
-            TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(l10n.cancel)),
-            FilledButton(onPressed: () => Navigator.of(dialogContext).pop(controller.text.trim()), child: Text(l10n.save)),
-          ],
+        return _ThemeColorDialog(
+          title: switch (colorRole) {
+            _ThemeColorRole.seed => l10n.themeAccentColor,
+            _ThemeColorRole.foreground => l10n.themeForegroundColor,
+            _ThemeColorRole.background => l10n.themeBackgroundColor,
+          },
+          initialColor: initialColor,
         );
       },
     );
@@ -794,7 +901,18 @@ class _SettingPageState extends State<SettingPage> {
       return;
     }
 
-    await userProvider.updateCustomThemeColor(result.isEmpty ? null : result);
+    final hex = AppThemePresets.toHex(result);
+    switch (colorRole) {
+      case _ThemeColorRole.seed:
+        await userProvider.updateCustomThemeColor(hex);
+        break;
+      case _ThemeColorRole.foreground:
+        await userProvider.updateCustomForegroundColor(hex);
+        break;
+      case _ThemeColorRole.background:
+        await userProvider.updateCustomBackgroundColor(hex);
+        break;
+    }
     if (!mounted) {
       return;
     }
@@ -839,6 +957,248 @@ class _SettingSectionData {
   final String title;
   final IconData icon;
   final Widget Function() builder;
+}
+
+enum _ThemeColorRole { seed, foreground, background }
+
+class _ColorPreview extends StatelessWidget {
+  const _ColorPreview({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.black12),
+      ),
+    );
+  }
+}
+
+class _ThemeColorDialog extends StatefulWidget {
+  const _ThemeColorDialog({
+    required this.title,
+    required this.initialColor,
+  });
+
+  final String title;
+  final Color initialColor;
+
+  @override
+  State<_ThemeColorDialog> createState() => _ThemeColorDialogState();
+}
+
+class _ThemeColorDialogState extends State<_ThemeColorDialog> {
+  late Color _selectedColor;
+  late TextEditingController _hexController;
+  late TextEditingController _redController;
+  late TextEditingController _greenController;
+  late TextEditingController _blueController;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedColor = widget.initialColor;
+    _hexController = TextEditingController();
+    _redController = TextEditingController();
+    _greenController = TextEditingController();
+    _blueController = TextEditingController();
+    _syncControllers();
+  }
+
+  @override
+  void dispose() {
+    _hexController.dispose();
+    _redController.dispose();
+    _greenController.dispose();
+    _blueController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return AlertDialog(
+      title: Text(widget.title),
+      content: SizedBox(
+        width: 420,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 120,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: _selectedColor,
+                    borderRadius: BorderRadius.circular(AppRadii.medium),
+                    border: Border.all(color: Colors.black12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.medium),
+              Wrap(
+                spacing: AppSpacing.small,
+                runSpacing: AppSpacing.small,
+                children: AppThemePresets.colorChoices.map((color) {
+                  final selected = color.toARGB32() == _selectedColor.toARGB32();
+                  return InkWell(
+                    onTap: () => _updateColor(color),
+                    borderRadius: BorderRadius.circular(10),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: selected
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.black12,
+                          width: selected ? 2 : 1,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: AppSpacing.medium),
+              TextField(
+                controller: _hexController,
+                decoration: InputDecoration(labelText: l10n.customThemeColorHint),
+                onChanged: (value) {
+                  final parsed = AppThemePresets.parseHexColor(value);
+                  if (parsed != null) {
+                    _updateColor(parsed, syncText: false);
+                  }
+                },
+              ),
+              const SizedBox(height: AppSpacing.medium),
+              _RgbEditorRow(
+                label: 'R',
+                controller: _redController,
+                value: _selectedColor.r.toDouble(),
+                onChanged: (value) => _updateColor(
+                  Color.fromARGB(
+                    255,
+                    value.round(),
+                    _selectedColor.g.round(),
+                    _selectedColor.b.round(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.small),
+              _RgbEditorRow(
+                label: 'G',
+                controller: _greenController,
+                value: _selectedColor.g.toDouble(),
+                onChanged: (value) => _updateColor(
+                  Color.fromARGB(
+                    255,
+                    _selectedColor.r.round(),
+                    value.round(),
+                    _selectedColor.b.round(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.small),
+              _RgbEditorRow(
+                label: 'B',
+                controller: _blueController,
+                value: _selectedColor.b.toDouble(),
+                onChanged: (value) => _updateColor(
+                  Color.fromARGB(
+                    255,
+                    _selectedColor.r.round(),
+                    _selectedColor.g.round(),
+                    value.round(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(_selectedColor),
+          child: Text(l10n.save),
+        ),
+      ],
+    );
+  }
+
+  void _updateColor(Color color, {bool syncText = true}) {
+    setState(() {
+      _selectedColor = color;
+      if (syncText) {
+        _syncControllers();
+      }
+    });
+  }
+
+  void _syncControllers() {
+    _hexController.text = AppThemePresets.toHex(_selectedColor);
+    _redController.text = '${_selectedColor.r}';
+    _greenController.text = '${_selectedColor.g}';
+    _blueController.text = '${_selectedColor.b}';
+  }
+}
+
+class _RgbEditorRow extends StatelessWidget {
+  const _RgbEditorRow({
+    required this.label,
+    required this.controller,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final TextEditingController controller;
+  final double value;
+  final ValueChanged<double> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(width: 24, child: Text(label)),
+        Expanded(
+          child: Slider(
+            min: 0,
+            max: 255,
+            value: value.clamp(0, 255),
+            onChanged: onChanged,
+          ),
+        ),
+        SizedBox(
+          width: 64,
+          child: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            onSubmitted: (raw) {
+              final parsed = int.tryParse(raw);
+              if (parsed != null) {
+                onChanged(parsed.clamp(0, 255).toDouble());
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class _SettingSectionPage extends StatelessWidget {

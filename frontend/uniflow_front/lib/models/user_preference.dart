@@ -12,9 +12,12 @@ class UserPreference {
     String? activeApiSourceId,
     String? languageCode,
     String? homeSortMode,
+    Map<String, bool>? sortAscendingByMode,
     String? themeMode,
     String? themePreset,
     String? customThemeColorHex,
+    String? customForegroundColorHex,
+    String? customBackgroundColorHex,
     String? timelineRange,
     String? settingsLayout,
     String? widgetListSize,
@@ -28,9 +31,14 @@ class UserPreference {
         activeApiSourceId = activeApiSourceId ?? ApiSourceConfig.mock().id,
         languageCode = languageCode ?? AppLanguageOptions.system,
         homeSortMode = homeSortMode ?? AppSortModes.personalized,
+        sortAscendingByMode = _normalizeSortAscending(sortAscendingByMode),
         themeMode = _normalizeThemeMode(themeMode),
         themePreset = _normalizeThemePreset(themePreset),
         customThemeColorHex = _normalizeCustomThemeColorHex(customThemeColorHex),
+        customForegroundColorHex =
+            _normalizeCustomThemeColorHex(customForegroundColorHex),
+        customBackgroundColorHex =
+            _normalizeCustomThemeColorHex(customBackgroundColorHex),
         timelineRange = _normalizeTimelineRange(timelineRange),
         settingsLayout = _normalizeSettingsLayout(settingsLayout),
         widgetListSize = _normalizeWidgetSize(widgetListSize),
@@ -45,9 +53,12 @@ class UserPreference {
   final String activeApiSourceId;
   final String languageCode;
   final String homeSortMode;
+  final Map<String, bool> sortAscendingByMode;
   final String themeMode;
   final String themePreset;
   final String? customThemeColorHex;
+  final String? customForegroundColorHex;
+  final String? customBackgroundColorHex;
   final String timelineRange;
   final String settingsLayout;
   final String widgetListSize;
@@ -72,9 +83,17 @@ class UserPreference {
       activeApiSourceId: 'fastapi-default',
       languageCode: AppLanguageOptions.system,
       homeSortMode: AppSortModes.personalized,
+      sortAscendingByMode: const <String, bool>{
+        AppSortModes.personalized: false,
+        AppSortModes.latest: false,
+        AppSortModes.importance: false,
+        AppSortModes.deadline: true,
+      },
       themeMode: AppThemeModes.system,
       themePreset: AppThemePresets.xjtuRed,
       customThemeColorHex: null,
+      customForegroundColorHex: null,
+      customBackgroundColorHex: null,
       timelineRange: AppTimelineRanges.month,
       settingsLayout: AppSettingsLayouts.horizontalTabs,
       widgetListSize: AppWidgetSizes.medium,
@@ -93,9 +112,12 @@ class UserPreference {
       activeApiSourceId: json['activeApiSourceId']?.toString(),
       languageCode: json['languageCode']?.toString(),
       homeSortMode: json['homeSortMode']?.toString(),
+      sortAscendingByMode: _readBoolMap(json['sortAscendingByMode']),
       themeMode: json['themeMode']?.toString(),
       themePreset: json['themePreset']?.toString(),
       customThemeColorHex: json['customThemeColorHex']?.toString(),
+      customForegroundColorHex: json['customForegroundColorHex']?.toString(),
+      customBackgroundColorHex: json['customBackgroundColorHex']?.toString(),
       timelineRange: json['timelineRange']?.toString(),
       settingsLayout: json['settingsLayout']?.toString(),
       widgetListSize: json['widgetListSize']?.toString(),
@@ -114,9 +136,12 @@ class UserPreference {
       'activeApiSourceId': activeApiSourceId,
       'languageCode': languageCode,
       'homeSortMode': homeSortMode,
+      'sortAscendingByMode': sortAscendingByMode,
       'themeMode': themeMode,
       'themePreset': themePreset,
       'customThemeColorHex': customThemeColorHex,
+      'customForegroundColorHex': customForegroundColorHex,
+      'customBackgroundColorHex': customBackgroundColorHex,
       'timelineRange': timelineRange,
       'settingsLayout': settingsLayout,
       'widgetListSize': widgetListSize,
@@ -134,9 +159,12 @@ class UserPreference {
     String? activeApiSourceId,
     String? languageCode,
     String? homeSortMode,
+    Map<String, bool>? sortAscendingByMode,
     String? themeMode,
     String? themePreset,
     String? customThemeColorHex,
+    String? customForegroundColorHex,
+    String? customBackgroundColorHex,
     String? timelineRange,
     String? settingsLayout,
     String? widgetListSize,
@@ -153,9 +181,14 @@ class UserPreference {
       activeApiSourceId: activeApiSourceId ?? this.activeApiSourceId,
       languageCode: languageCode ?? this.languageCode,
       homeSortMode: homeSortMode ?? this.homeSortMode,
+      sortAscendingByMode: sortAscendingByMode ?? this.sortAscendingByMode,
       themeMode: themeMode ?? this.themeMode,
       themePreset: themePreset ?? this.themePreset,
       customThemeColorHex: customThemeColorHex ?? this.customThemeColorHex,
+      customForegroundColorHex:
+          customForegroundColorHex ?? this.customForegroundColorHex,
+      customBackgroundColorHex:
+          customBackgroundColorHex ?? this.customBackgroundColorHex,
       timelineRange: timelineRange ?? this.timelineRange,
       settingsLayout: settingsLayout ?? this.settingsLayout,
       widgetListSize: widgetListSize ?? this.widgetListSize,
@@ -166,6 +199,10 @@ class UserPreference {
   ApiSourceConfig get activeApiSource {
     return apiSources.where((item) => item.id == activeApiSourceId).firstOrNull ??
         apiSources.first;
+  }
+
+  bool sortAscendingOf(String mode) {
+    return sortAscendingByMode[mode] ?? false;
   }
 
   static Map<String, double> _normalizeWeights(Map<String, double>? weights) {
@@ -224,6 +261,22 @@ class UserPreference {
       final parsed = double.tryParse(raw?.toString() ?? '');
       if (parsed != null) {
         result[key] = _clampWeight(parsed);
+      }
+    }
+    return result;
+  }
+
+  static Map<String, bool> _readBoolMap(dynamic value) {
+    if (value is! Map) {
+      return <String, bool>{};
+    }
+    final result = <String, bool>{};
+    for (final mode in AppSortModes.values) {
+      final raw = value[mode];
+      if (raw is bool) {
+        result[mode] = raw;
+      } else if (raw is String) {
+        result[mode] = raw.toLowerCase() == 'true';
       }
     }
     return result;
@@ -293,6 +346,16 @@ class UserPreference {
       return null;
     }
     return '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
+  }
+
+  static Map<String, bool> _normalizeSortAscending(Map<String, bool>? value) {
+    return <String, bool>{
+      AppSortModes.personalized:
+          value?[AppSortModes.personalized] ?? false,
+      AppSortModes.latest: value?[AppSortModes.latest] ?? false,
+      AppSortModes.importance: value?[AppSortModes.importance] ?? false,
+      AppSortModes.deadline: value?[AppSortModes.deadline] ?? true,
+    };
   }
 
   static String _normalizeTimelineRange(String? value) {

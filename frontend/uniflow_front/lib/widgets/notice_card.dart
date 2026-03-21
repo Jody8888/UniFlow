@@ -35,6 +35,7 @@ class NoticeCard extends StatelessWidget {
     final isExpired = AppDateUtils.isExpired(notice);
     final publishTime = AppDateUtils.extractPublishedTime(notice);
     final publishAgo = AppDateUtils.formatTimeAgo(publishTime);
+    final deadline = AppDateUtils.extractLatestBusinessTime(notice);
     final colorScheme = Theme.of(context).colorScheme;
     final importanceStyle = _importanceStyle(notice.importance);
     final titleColor = isRead
@@ -190,6 +191,19 @@ class NoticeCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           '${AppDateUtils.formatDateTime(publishTime)} · $publishAgo',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.small),
+                  Row(
+                    children: [
+                      const Icon(Icons.event_outlined, size: 16),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          '${l10n.deadlineLabel}: ${AppDateUtils.formatDateTime(deadline)}',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),

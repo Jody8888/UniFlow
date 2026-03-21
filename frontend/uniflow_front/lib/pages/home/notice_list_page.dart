@@ -25,8 +25,10 @@ class _NoticeListPageState extends State<NoticeListPage>
     with SingleTickerProviderStateMixin {
   final RefreshController _refreshController = RefreshController();
   final CalendarService _calendarService = CalendarService();
+  final TextEditingController _searchController = TextEditingController();
   late final TabController _tabController;
   String? _selectedTimelineRange;
+  String _searchQuery = '';
   final Set<String> _selectedNoticeIds = <String>{};
   bool _selectionMode = false;
 
@@ -45,6 +47,7 @@ class _NoticeListPageState extends State<NoticeListPage>
   void dispose() {
     _tabController.dispose();
     _refreshController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -135,12 +138,26 @@ class _NoticeListPageState extends State<NoticeListPage>
 
   Future<void> _updateSortMode(String mode) async {
     final l10n = context.l10n;
-    await context.read<UserProvider>().updateHomeSortMode(mode);
-    await context.read<NoticeProvider>().refreshNotices();
+    final userProvider = context.read<UserProvider>();
+    final noticeProvider = context.read<NoticeProvider>();
+    await userProvider.updateHomeSortMode(mode);
+    await noticeProvider.refreshNotices();
     if (!mounted) {
       return;
     }
     _showMessage(l10n.switchedSort(l10n.sortModeLabel(mode)));
+  }
+
+  Future<void> _toggleSortDirection(String mode, bool ascending) async {
+    final l10n = context.l10n;
+    final userProvider = context.read<UserProvider>();
+    await userProvider.updateSortDirection(mode, ascending);
+    if (!mounted) {
+      return;
+    }
+    _showMessage(
+      ascending ? l10n.sortAscending : l10n.sortDescending,
+    );
   }
 
   Future<void> _openNoticeDetail(NoticeModel notice) async {
@@ -284,9 +301,12 @@ class _NoticeListPageState extends State<NoticeListPage>
         final studentInfo = userProvider.studentInfo;
         final notices = noticeProvider.notices;
         final currentSortMode = userProvider.preference.homeSortMode;
+        final currentSortAscending =
+            userProvider.preference.sortAscendingOf(currentSortMode);
+        final filteredNotices = _filterNotices(notices);
         final timelineRange = _selectedTimelineRange ?? userProvider.preference.timelineRange;
         final favoriteIds = userProvider.preference.favoriteNoticeIds;
-        final favoriteNotices = notices
+        final favoriteNotices = filteredNotices
             .where((notice) => favoriteIds.contains(notice.id))
             .toList();
 
@@ -359,6 +379,20 @@ class _NoticeListPageState extends State<NoticeListPage>
                 icon: const Icon(Icons.sort),
               ),
               IconButton(
+                tooltip: currentSortAscending
+                    ? l10n.sortAscending
+                    : l10n.sortDescending,
+                onPressed: () => _toggleSortDirection(
+                  currentSortMode,
+                  !currentSortAscending,
+                ),
+                icon: Icon(
+                  currentSortAscending
+                      ? Icons.arrow_upward_rounded
+                      : Icons.arrow_downward_rounded,
+                ),
+              ),
+              IconButton(
                 tooltip: l10n.personalInfo,
                 onPressed: () => Navigator.of(context).pushNamed(AppRoutes.userInfo),
                 icon: const Icon(Icons.badge_outlined),
@@ -373,10 +407,19 @@ class _NoticeListPageState extends State<NoticeListPage>
           body: TabBarView(
             controller: _tabController,
             children: [
-              _buildNoticeTab(context, noticeProvider, userProvider, studentInfo, notices, currentSortMode),
+              _buildNoticeTab(
+                context,
+                noticeProvider,
+                userProvider,
+                studentInfo,
+                notices,
+                filteredNotices,
+                currentSortMode,
+                currentSortAscending,
+              ),
               _buildFavoritesTab(context, userProvider, favoriteNotices),
               TimelineCalendar(
-                notices: notices,
+                notices: filteredNotices,
                 selectedRange: timelineRange,
                 onRangeChanged: (value) {
                   setState(() {
@@ -399,21 +442,89 @@ class _NoticeListPageState extends State<NoticeListPage>
     NoticeProvider noticeProvider,
     UserProvider userProvider,
     StudentInfo? studentInfo,
+    List<NoticeModel> allNotices,
     List<NoticeModel> notices,
     String currentSortMode,
+    bool currentSortAscending,
   ) {
     final l10n = context.l10n;
+    final topTags = _topTags(allNotices);
     return Column(
       children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(AppSpacing.medium, 0, AppSpacing.medium, AppSpacing.small),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Chip(
-              label: Text(l10n.currentSortMode(l10n.sortModeLabel(currentSortMode))),
-              side: BorderSide.none,
-            ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.medium,
+            0,
+            AppSpacing.medium,
+            AppSpacing.small,
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  _AdaptiveActionChip(
+                    label: l10n.currentSortMode(
+                      l10n.sortModeLabel(currentSortMode),
+                    ),
+                    selected: true,
+                    icon: currentSortAscending
+                        ? Icons.arrow_upward_rounded
+                        : Icons.arrow_downward_rounded,
+                  ),
+                  const SizedBox(width: AppSpacing.small),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value.trim();
+                        });
+                      },
+                      decoration: InputDecoration(
+                        hintText: l10n.tagSearchHint,
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _searchQuery.isEmpty
+                            ? null
+                            : IconButton(
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {
+                                    _searchQuery = '';
+                                  });
+                                },
+                                icon: const Icon(Icons.close),
+                              ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (topTags.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.small),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    spacing: AppSpacing.small,
+                    runSpacing: AppSpacing.small,
+                    children: topTags.map((tag) {
+                      final selected =
+                          _searchQuery.toLowerCase() == tag.toLowerCase();
+                      return _AdaptiveActionChip(
+                        label: '#$tag',
+                        selected: selected,
+                        onTap: () {
+                          final nextValue = selected ? '' : tag;
+                          _searchController.text = nextValue;
+                          setState(() {
+                            _searchQuery = nextValue;
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
         if (!(studentInfo?.isComplete ?? false))
@@ -474,9 +585,11 @@ class _NoticeListPageState extends State<NoticeListPage>
     }
     if (notices.isEmpty) {
       return EmptyWidget(
-        message: userProvider.preference.dislikedGenres.isEmpty
-            ? l10n.noNotice
-            : l10n.allFiltered,
+        message: _searchQuery.isNotEmpty
+            ? l10n.noSearchResults
+            : userProvider.preference.dislikedGenres.isEmpty
+                ? l10n.noNotice
+                : l10n.allFiltered,
       );
     }
 
@@ -524,7 +637,11 @@ class _NoticeListPageState extends State<NoticeListPage>
     List<NoticeModel> favorites,
   ) {
     if (favorites.isEmpty) {
-      return EmptyWidget(message: context.l10n.favoriteEmpty);
+      return EmptyWidget(
+        message: _searchQuery.isNotEmpty
+            ? context.l10n.noSearchResults
+            : context.l10n.favoriteEmpty,
+      );
     }
     return ListView.separated(
       padding: const EdgeInsets.all(AppSpacing.medium),
@@ -547,6 +664,110 @@ class _NoticeListPageState extends State<NoticeListPage>
         );
       },
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.medium),
+    );
+  }
+
+  List<NoticeModel> _filterNotices(List<NoticeModel> notices) {
+    final query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) {
+      return notices;
+    }
+    return notices.where((notice) {
+      if (notice.keywordList.any((tag) => tag.toLowerCase().contains(query))) {
+        return true;
+      }
+      if (notice.keywords.toLowerCase().contains(query)) {
+        return true;
+      }
+      if (notice.title.toLowerCase().contains(query)) {
+        return true;
+      }
+      return notice.review.toLowerCase().contains(query);
+    }).toList();
+  }
+
+  List<String> _topTags(List<NoticeModel> notices) {
+    final counts = <String, int>{};
+    for (final notice in notices) {
+      for (final tag in notice.keywordList) {
+        final normalized = tag.trim();
+        if (normalized.isEmpty) {
+          continue;
+        }
+        counts.update(normalized, (value) => value + 1, ifAbsent: () => 1);
+      }
+    }
+    final sorted = counts.entries.toList()
+      ..sort((left, right) => right.value.compareTo(left.value));
+    return sorted.take(8).map((item) => item.key).toList();
+  }
+}
+
+class _AdaptiveActionChip extends StatelessWidget {
+  const _AdaptiveActionChip({
+    required this.label,
+    required this.selected,
+    this.icon,
+    this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final IconData? icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.medium,
+            vertical: 10,
+          ),
+          decoration: BoxDecoration(
+            color: selected
+                ? colorScheme.primaryContainer
+                : colorScheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: selected
+                  ? colorScheme.primary.withValues(alpha: 0.34)
+                  : colorScheme.outlineVariant,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  size: 16,
+                  color: selected
+                      ? colorScheme.onPrimaryContainer
+                      : colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                label,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: selected
+                          ? colorScheme.onPrimaryContainer
+                          : colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -217,6 +217,13 @@ class AppSortModes {
   }
 }
 
+class AppSortDirections {
+  static const String ascending = 'ascending';
+  static const String descending = 'descending';
+
+  static const List<String> values = <String>[ascending, descending];
+}
+
 class AppLanguageOptions {
   static const String system = 'system';
   static const String zhCn = 'zh_CN';
@@ -298,12 +305,60 @@ class AppThemePresets {
     amberGold,
   ];
 
-  static const Map<String, Color> seedColors = <String, Color>{
-    xjtuRed: Color(0xFF8D1F24),
-    oceanBlue: Color(0xFF0E7490),
-    forestGreen: Color(0xFF2F6B3B),
-    amberGold: Color(0xFFB7791F),
+  static const Map<String, AppThemePalette> palettes =
+      <String, AppThemePalette>{
+    xjtuRed: AppThemePalette(
+      seedColor: Color(0xFF8D1F24),
+      foregroundColor: Color(0xFF2D1F1A),
+      backgroundColor: Color(0xFFFFFBF7),
+    ),
+    oceanBlue: AppThemePalette(
+      seedColor: Color(0xFF0E7490),
+      foregroundColor: Color(0xFF122935),
+      backgroundColor: Color(0xFFF3FAFC),
+    ),
+    forestGreen: AppThemePalette(
+      seedColor: Color(0xFF2F6B3B),
+      foregroundColor: Color(0xFF1E2A20),
+      backgroundColor: Color(0xFFF5FBF6),
+    ),
+    amberGold: AppThemePalette(
+      seedColor: Color(0xFFB7791F),
+      foregroundColor: Color(0xFF332515),
+      backgroundColor: Color(0xFFFFFAF1),
+    ),
   };
+
+  static const List<Color> colorChoices = <Color>[
+    Color(0xFF8D1F24),
+    Color(0xFF0E7490),
+    Color(0xFF2F6B3B),
+    Color(0xFFB7791F),
+    Color(0xFF7C3AED),
+    Color(0xFFD946EF),
+    Color(0xFF2563EB),
+    Color(0xFFDC2626),
+    Color(0xFFEA580C),
+    Color(0xFF16A34A),
+    Color(0xFFF8FAFC),
+    Color(0xFF111827),
+    Color(0xFFFDE68A),
+    Color(0xFFE0F2FE),
+    Color(0xFFF5F3FF),
+    Color(0xFFFCE7F3),
+  ];
+
+  static Color seedColorOf(String preset) {
+    return palettes[preset]?.seedColor ?? AppColors.brandPrimary;
+  }
+
+  static Color foregroundColorOf(String preset) {
+    return palettes[preset]?.foregroundColor ?? AppColors.textPrimary;
+  }
+
+  static Color backgroundColorOf(String preset) {
+    return palettes[preset]?.backgroundColor ?? AppColors.surface;
+  }
 
   static Color? parseHexColor(String? value) {
     final normalized = value?.trim() ?? '';
@@ -314,6 +369,23 @@ class AppThemePresets {
         normalized.startsWith('#') ? normalized.substring(1) : normalized;
     return Color(int.parse('FF$hex', radix: 16));
   }
+
+  static String toHex(Color color) {
+    final hex = color.toARGB32().toRadixString(16).substring(2).toUpperCase();
+    return '#$hex';
+  }
+}
+
+class AppThemePalette {
+  const AppThemePalette({
+    required this.seedColor,
+    required this.foregroundColor,
+    required this.backgroundColor,
+  });
+
+  final Color seedColor;
+  final Color foregroundColor;
+  final Color backgroundColor;
 }
 
 class DeveloperInfo {
@@ -346,8 +418,8 @@ class DeveloperInfo {
   Webmin Panel
   """;
   static const String contact = 'https://github.com/Jody8888/Uniflow';
-  static const String buyMeACoffeeUrl = 'TBD';
-  static const String afdianUrl = 'TBD';
+  static const String buyMeACoffeeUrl = 'https://buymeacoffee.com/thusci';
+  static const String afdianUrl = 'https://ifdian.net/a/thusci';
 }
 
 class AppSpacing {
@@ -385,17 +457,34 @@ class AppTheme {
   static ThemeData buildTheme({
     required Brightness brightness,
     required Color seedColor,
+    Color? foregroundColor,
+    Color? backgroundColor,
   }) {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: seedColor,
       brightness: brightness,
     );
     final isDark = brightness == Brightness.dark;
+    final resolvedBackground =
+        backgroundColor ?? (isDark ? colorScheme.surface : AppColors.surface);
+    final resolvedForeground = foregroundColor ??
+        (isDark ? colorScheme.onSurface : AppColors.textPrimary);
+    final cardColor = isDark
+        ? Color.alphaBlend(
+            Colors.white.withValues(alpha: 0.04),
+            resolvedBackground,
+          )
+        : Colors.white;
+    final softBackground = Color.alphaBlend(
+      colorScheme.primary.withValues(alpha: isDark ? 0.14 : 0.06),
+      resolvedBackground,
+    );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: isDark ? colorScheme.surface : AppColors.surface,
+      scaffoldBackgroundColor: resolvedBackground,
+      canvasColor: resolvedBackground,
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: <TargetPlatform, PageTransitionsBuilder>{
           TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
@@ -408,11 +497,11 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         centerTitle: false,
         backgroundColor: Colors.transparent,
-        foregroundColor: isDark ? colorScheme.onSurface : AppColors.textPrimary,
+        foregroundColor: resolvedForeground,
         elevation: 0,
       ),
       cardTheme: CardThemeData(
-        color: isDark ? colorScheme.surfaceContainerHighest : Colors.white,
+        color: cardColor,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadii.large),
@@ -424,7 +513,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: isDark ? colorScheme.surfaceContainerHigh : Colors.white,
+        fillColor: isDark ? softBackground : Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.medium),
         ),
@@ -444,6 +533,9 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadii.medium),
         ),
+        backgroundColor: softBackground,
+        selectedColor: colorScheme.primaryContainer,
+        labelStyle: TextStyle(color: resolvedForeground),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
@@ -453,6 +545,21 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.medium),
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.medium,
+            vertical: 12,
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.medium,
+            vertical: 12,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadii.medium),
           ),
@@ -467,6 +574,10 @@ class AppTheme {
         labelColor: colorScheme.onPrimaryContainer,
         unselectedLabelColor: colorScheme.onSurfaceVariant,
       ),
+      textTheme: Typography.material2021().black.apply(
+            bodyColor: resolvedForeground,
+            displayColor: resolvedForeground,
+          ),
     );
   }
 }

@@ -40,11 +40,10 @@ class TimelineCalendar extends StatelessWidget {
           spacing: AppSpacing.small,
           runSpacing: AppSpacing.small,
           children: AppTimelineRanges.values.map((value) {
-            final selected = value == selectedRange;
-            return ChoiceChip(
-              label: Text(l10n.timelineRangeLabel(value)),
-              selected: selected,
-              onSelected: (_) => onRangeChanged(value),
+            return _AdaptiveOptionChip(
+              label: l10n.timelineRangeLabel(value),
+              selected: value == selectedRange,
+              onTap: () => onRangeChanged(value),
             );
           }).toList(),
         ),
@@ -57,30 +56,24 @@ class TimelineCalendar extends StatelessWidget {
         else ...[
           _WeekHeader(start: start),
           const SizedBox(height: AppSpacing.small),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: calendarDays.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7,
-              mainAxisSpacing: AppSpacing.small,
-              crossAxisSpacing: AppSpacing.small,
-              childAspectRatio: 0.82,
-            ),
-            itemBuilder: (context, index) {
-              final date = calendarDays[index];
-              final inRange =
-                  !date.isBefore(start) && !date.isAfter(end);
-              final dayNotices = buckets[_dateKey(date)] ?? <NoticeModel>[];
-              return _CalendarCell(
-                date: date,
-                inRange: inRange,
-                notices: dayNotices,
-                onTap: dayNotices.isEmpty
-                    ? null
-                    : () => _openDaySheet(context, date, dayNotices),
-              );
+          Table(
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            columnWidths: const <int, TableColumnWidth>{
+              0: FlexColumnWidth(),
+              1: FlexColumnWidth(),
+              2: FlexColumnWidth(),
+              3: FlexColumnWidth(),
+              4: FlexColumnWidth(),
+              5: FlexColumnWidth(),
+              6: FlexColumnWidth(),
             },
+            children: _buildCalendarRows(
+              context: context,
+              calendarDays: calendarDays,
+              buckets: buckets,
+              start: start,
+              end: end,
+            ),
           ),
         ],
       ],
@@ -213,6 +206,47 @@ class TimelineCalendar extends StatelessWidget {
   String _dateKey(DateTime date) {
     return '${date.year}-${date.month}-${date.day}';
   }
+
+  List<TableRow> _buildCalendarRows({
+    required BuildContext context,
+    required List<DateTime> calendarDays,
+    required Map<String, List<NoticeModel>> buckets,
+    required DateTime start,
+    required DateTime end,
+  }) {
+    final rows = <TableRow>[];
+    for (var index = 0; index < calendarDays.length; index += 7) {
+      final week = calendarDays.skip(index).take(7).toList();
+      final maxCount = week.fold<int>(0, (current, date) {
+        final length = (buckets[_dateKey(date)] ?? const <NoticeModel>[]).length;
+        return length > current ? length : current;
+      });
+      final cellHeight = 84.0 + (maxCount.clamp(0, 4) * 20.0);
+      rows.add(
+        TableRow(
+          children: week.map((date) {
+            final inRange = !date.isBefore(start) && !date.isAfter(end);
+            final dayNotices = buckets[_dateKey(date)] ?? <NoticeModel>[];
+            return Padding(
+              padding: const EdgeInsets.all(AppSpacing.small / 2),
+              child: SizedBox(
+                height: cellHeight,
+                child: _CalendarCell(
+                  date: date,
+                  inRange: inRange,
+                  notices: dayNotices,
+                  onTap: dayNotices.isEmpty
+                      ? null
+                      : () => _openDaySheet(context, date, dayNotices),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    }
+    return rows;
+  }
 }
 
 class _WeekHeader extends StatelessWidget {
@@ -334,6 +368,67 @@ class _CalendarCell extends StatelessWidget {
                     ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AdaptiveOptionChip extends StatelessWidget {
+  const _AdaptiveOptionChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.medium,
+            vertical: 10,
+          ),
+          decoration: BoxDecoration(
+            color: selected
+                ? colorScheme.primaryContainer
+                : colorScheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: selected
+                  ? colorScheme.primary.withValues(alpha: 0.34)
+                  : colorScheme.outlineVariant,
+            ),
+            boxShadow: selected
+                ? <BoxShadow>[
+                    BoxShadow(
+                      color: colorScheme.primary.withValues(alpha: 0.16),
+                      blurRadius: 14,
+                      offset: const Offset(0, 6),
+                    ),
+                  ]
+                : const <BoxShadow>[],
+          ),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: selected
+                      ? colorScheme.onPrimaryContainer
+                      : colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
         ),
       ),
     );

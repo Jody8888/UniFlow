@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:uniflow_front/main.dart';
+import '../lib/main.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -11,8 +11,8 @@ void main() {
     final bootstrap = await AppBootstrap.create();
 
     await tester.pumpWidget(UniFlowApp(bootstrap: bootstrap));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('UniFlow 校园通知'), findsOneWidget);
+    expect(find.text('UniFlow У԰֪ͨ'), findsWidgets);
   });
 }

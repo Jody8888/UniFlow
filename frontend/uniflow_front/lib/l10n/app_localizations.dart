@@ -65,6 +65,9 @@ class AppLocalizations {
       'customThemeColorHint': '输入十六进制颜色，例如 #8D1F24',
       'customThemeColorSaved': '自定义主题色已更新',
       'clearCustomThemeColor': '恢复预设配色',
+      'themeAccentColor': '强调色',
+      'themeForegroundColor': '前景色',
+      'themeBackgroundColor': '背景色',
       'themeSystem': '跟随系统',
       'themeLight': '浅色模式',
       'themeDark': '深色模式',
@@ -136,7 +139,11 @@ class AppLocalizations {
       'sortLatest': '最新发布',
       'sortImportance': '重要度',
       'sortDeadline': '截止时间',
+      'sortAscending': '已切换为正序',
+      'sortDescending': '已切换为倒序',
       'switchedSort': '已切换为 {value}',
+      'tagSearchHint': '按标签、关键词或标题搜索',
+      'noSearchResults': '没有匹配当前搜索词的通知',
       'addToFavorites': '加入收藏',
       'removeFromFavorites': '取消收藏',
       'favorited': '已收藏',
@@ -217,6 +224,7 @@ class AppLocalizations {
       'noSummary': '暂无摘要',
       'defaultKeywords': '#通知;#校园;#其他',
       'publishedLabel': '发布时间',
+      'deadlineLabel': '截止时间',
     },
     'en': <String, String>{
       'appName': 'UniFlow Campus Notices',
@@ -265,6 +273,9 @@ class AppLocalizations {
       'customThemeColorHint': 'Enter a hex color, for example #8D1F24',
       'customThemeColorSaved': 'Custom theme color updated',
       'clearCustomThemeColor': 'Use preset colors',
+      'themeAccentColor': 'Accent Color',
+      'themeForegroundColor': 'Foreground Color',
+      'themeBackgroundColor': 'Background Color',
       'themeSystem': 'Follow System',
       'themeLight': 'Light',
       'themeDark': 'Dark',
@@ -339,7 +350,11 @@ class AppLocalizations {
       'sortLatest': 'Latest',
       'sortImportance': 'Importance',
       'sortDeadline': 'Deadline',
+      'sortAscending': 'Ascending order enabled',
+      'sortDescending': 'Descending order enabled',
       'switchedSort': 'Switched to {value}',
+      'tagSearchHint': 'Search by tag, keyword, or title',
+      'noSearchResults': 'No notices match the current search',
       'addToFavorites': 'Add to Favorites',
       'removeFromFavorites': 'Remove Favorite',
       'favorited': 'Favorited',
@@ -420,6 +435,7 @@ class AppLocalizations {
       'noSummary': 'No summary',
       'defaultKeywords': '#notice;#campus;#other',
       'publishedLabel': 'Published',
+      'deadlineLabel': 'Deadline',
     },
   };
 
@@ -475,6 +491,9 @@ class AppLocalizations {
   String get customThemeColorHint => _value('customThemeColorHint');
   String get customThemeColorSaved => _value('customThemeColorSaved');
   String get clearCustomThemeColor => _value('clearCustomThemeColor');
+  String get themeAccentColor => _value('themeAccentColor');
+  String get themeForegroundColor => _value('themeForegroundColor');
+  String get themeBackgroundColor => _value('themeBackgroundColor');
   String get blockedTypes => _value('blockedTypes');
   String get noBlockedTypes => _value('noBlockedTypes');
   String restoredGenre(String value) => _format('restoredGenre', value);
@@ -578,7 +597,11 @@ class AppLocalizations {
   String get cancel => _value('cancel');
   String get confirmBlock => _value('confirmBlock');
   String genreBlocked(String value) => _format('genreBlocked', value);
+  String get sortAscending => _value('sortAscending');
+  String get sortDescending => _value('sortDescending');
   String switchedSort(String value) => _format('switchedSort', value);
+  String get tagSearchHint => _value('tagSearchHint');
+  String get noSearchResults => _value('noSearchResults');
   String get noticeDetail => _value('noticeDetail');
   String get noticeDetailMissing => _value('noticeDetailMissing');
   String get viewOriginal => _value('viewOriginal');
@@ -681,6 +704,7 @@ class AppLocalizations {
   String get noSummary => _value('noSummary');
   String get defaultKeywords => _value('defaultKeywords');
   String get publishedLabel => _value('publishedLabel');
+  String get deadlineLabel => _value('deadlineLabel');
 
   String widgetSizeLabel(String value) {
     switch (value) {

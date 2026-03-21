@@ -79,21 +79,33 @@ class UniFlowApp extends StatelessWidget {
       ],
       child: Consumer<UserProvider>(
         builder: (context, userProvider, _) {
+          final preset = userProvider.preference.themePreset;
           final seedColor = AppThemePresets.parseHexColor(
                 userProvider.preference.customThemeColorHex,
               ) ??
-              AppThemePresets.seedColors[userProvider.preference.themePreset] ??
-              AppColors.brandPrimary;
+              AppThemePresets.seedColorOf(preset);
+          final foregroundColor = AppThemePresets.parseHexColor(
+                userProvider.preference.customForegroundColorHex,
+              ) ??
+              AppThemePresets.foregroundColorOf(preset);
+          final backgroundColor = AppThemePresets.parseHexColor(
+                userProvider.preference.customBackgroundColorHex,
+              ) ??
+              AppThemePresets.backgroundColorOf(preset);
           return MaterialApp(
             onGenerateTitle: (context) => context.l10n.appName,
             debugShowCheckedModeBanner: false,
             theme: AppTheme.buildTheme(
               brightness: Brightness.light,
               seedColor: seedColor,
+              foregroundColor: foregroundColor,
+              backgroundColor: backgroundColor,
             ),
             darkTheme: AppTheme.buildTheme(
               brightness: Brightness.dark,
               seedColor: seedColor,
+              foregroundColor: foregroundColor,
+              backgroundColor: backgroundColor,
             ),
             themeMode: _resolveThemeMode(userProvider.preference.themeMode),
             themeAnimationCurve: Curves.easeInOutCubic,

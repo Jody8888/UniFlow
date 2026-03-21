@@ -1,4 +1,4 @@
-﻿name: uniflow_front
+﻿name: Uniflow
 description: 西安交通大学校园通知个性化客户端
 publish_to: 'none'
 version: 1.0.0+1
@@ -27,6 +27,14 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/icon.png"
+  image_path: "assets/icon.png"

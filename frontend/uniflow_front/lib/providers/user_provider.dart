@@ -103,6 +103,15 @@ class UserProvider extends ChangeNotifier {
     await _savePreference(_preference.copyWith(homeSortMode: safe));
   }
 
+  Future<void> updateSortDirection(String mode, bool ascending) async {
+    final safeMode = AppSortModes.values.contains(mode)
+        ? mode
+        : AppSortModes.personalized;
+    final nextMap = Map<String, bool>.from(_preference.sortAscendingByMode)
+      ..[safeMode] = ascending;
+    await _savePreference(_preference.copyWith(sortAscendingByMode: nextMap));
+  }
+
   Future<void> updateThemeMode(String value) async {
     final safe = AppThemeModes.values.contains(value)
         ? value
@@ -127,9 +136,12 @@ class UserProvider extends ChangeNotifier {
       activeApiSourceId: _preference.activeApiSourceId,
       languageCode: _preference.languageCode,
       homeSortMode: _preference.homeSortMode,
+      sortAscendingByMode: _preference.sortAscendingByMode,
       themeMode: _preference.themeMode,
       themePreset: _preference.themePreset,
       customThemeColorHex: value,
+      customForegroundColorHex: _preference.customForegroundColorHex,
+      customBackgroundColorHex: _preference.customBackgroundColorHex,
       timelineRange: _preference.timelineRange,
       settingsLayout: _preference.settingsLayout,
       favoriteNoticeIds: _preference.favoriteNoticeIds,
@@ -137,6 +149,18 @@ class UserProvider extends ChangeNotifier {
       widgetTimelineSize: _preference.widgetTimelineSize,
     );
     await _savePreference(nextPreference);
+  }
+
+  Future<void> updateCustomForegroundColor(String? value) async {
+    await _savePreference(
+      _preference.copyWith(customForegroundColorHex: value),
+    );
+  }
+
+  Future<void> updateCustomBackgroundColor(String? value) async {
+    await _savePreference(
+      _preference.copyWith(customBackgroundColorHex: value),
+    );
   }
 
   Future<void> updateTimelineRange(String value) async {

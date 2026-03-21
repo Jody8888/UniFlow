@@ -13,6 +13,7 @@ class SortService {
     final visibleNotices = notices
         .where((notice) => !preference.dislikedGenres.contains(notice.genre))
         .toList();
+    final ascending = preference.sortAscendingOf(preference.homeSortMode);
 
     switch (preference.homeSortMode) {
       case AppSortModes.latest:
@@ -45,6 +46,10 @@ class SortService {
           }
           return rightScore.compareTo(leftScore);
         });
+    }
+
+    if (ascending) {
+      return visibleNotices.reversed.toList();
     }
 
     return visibleNotices;

@@ -61,7 +61,19 @@
 
 <p align="center">
   <a href="https://github.com/Jody8888/UniFlow/releases">
-    <img src="https://img.shields.io/badge/Download-APK-blue?style=for-the-badge&logo=android"/>
+    <img src="https://img.shields.io/badge/Android-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white"/>
+  </a>
+  <a href="https://github.com/Jody8888/UniFlow/releases">
+    <img src="https://img.shields.io/badge/Windows-Download-0078D6?style=for-the-badge&logo=windows&logoColor=white"/>
+  </a>
+  <a href="https://github.com/Jody8888/UniFlow/releases">
+    <img src="https://img.shields.io/badge/Linux-Download-FCC624?style=for-the-badge&logo=linux&logoColor=black"/>
+  </a>
+  <a href="https://github.com/Jody8888/UniFlow/releases">
+    <img src="https://img.shields.io/badge/macOS-Download-000000?style=for-the-badge&logo=apple&logoColor=white"/>
+  </a>
+  <a href="https://github.com/Jody8888/UniFlow/releases">
+    <img src="https://img.shields.io/badge/iOS-TestFlight-0D96F6?style=for-the-badge&logo=apple&logoColor=white"/>
   </a>
 </p>
 
@@ -151,7 +163,7 @@ AI        → 信息精炼与结构化
 
 ### 爱发电
 
-👉 https://ifdian.net/thusci
+👉 https://ifdian.net/a/thusci
 
 ---
 

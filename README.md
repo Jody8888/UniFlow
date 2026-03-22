@@ -159,7 +159,7 @@ AI        → 信息精炼与结构化
 
 ### Patreon
 
-👉 [Patreon](https://www.patreon.com/Thusci))
+👉 [Patreon](https://www.patreon.com/Thusci)
 
 ---
 

@@ -201,7 +201,7 @@ class NoticeProvider extends ChangeNotifier {
 
   void _applyOperationalSettings() {
     _apiService.updateSource(_preference.activeApiSource);
-    _configureAutoRefresh(_preference.updateFrequencyMinutes);
+    _configureAutoRefresh(_preference.resolvedAutoRefreshMinutes);
   }
 
   void _configureAutoRefresh(int minutes) {

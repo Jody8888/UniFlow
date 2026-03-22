@@ -29,9 +29,12 @@ class AppLocalizations {
       'about': '关于',
       'updateFrequency': '更新频率',
       'updateFrequencyDesc':
-          '-1 表示不自动更新；启用后会在应用运行期间按固定分钟间隔自动刷新。',
+          '支持自定义刷新数值与单位；设为 0 时表示不自动更新。',
       'autoUpdateFrequency': '自动更新频率',
-      'noAutoUpdate': '不自动更新 (-1)',
+      'noAutoUpdate': '不自动更新',
+      'autoRefreshValue': '刷新数值',
+      'autoRefreshUnit': '刷新单位',
+      'autoRefreshHint': '默认是 1 天；例如 30 分钟、6 小时、1 天、1 周。',
       'minutesSuffix': '分钟',
       'disabledAutoUpdate': '已关闭自动更新',
       'updatedAutoUpdate': '自动更新频率已更新',
@@ -79,6 +82,7 @@ class AppLocalizations {
       'supportProjectDesc': '如果这个项目对你有帮助，可以通过下面的方式支持持续开发。',
       'buyMeCoffee': 'Buy Me a Coffee',
       'afdian': '爱发电',
+      'patreon': 'Patreon',
       'openSupportLinkFailed': '支持链接打开失败',
       'widgetSettings': '桌面小组件',
       'widgetPreview': '预览',
@@ -238,9 +242,13 @@ class AppLocalizations {
       'about': 'About',
       'updateFrequency': 'Update Frequency',
       'updateFrequencyDesc':
-          '-1 disables auto refresh. When enabled, notices refresh on a fixed minute interval while the app is running.',
+          'Use a custom refresh value and unit. Set the value to 0 to disable auto refresh.',
       'autoUpdateFrequency': 'Auto Refresh Interval',
-      'noAutoUpdate': 'Disabled (-1)',
+      'noAutoUpdate': 'Disabled',
+      'autoRefreshValue': 'Refresh Value',
+      'autoRefreshUnit': 'Refresh Unit',
+      'autoRefreshHint':
+          'Default is 1 day. Examples: 30 minutes, 6 hours, 1 day, 1 week.',
       'minutesSuffix': 'minutes',
       'disabledAutoUpdate': 'Auto refresh disabled',
       'updatedAutoUpdate': 'Auto refresh interval updated',
@@ -290,6 +298,7 @@ class AppLocalizations {
           'If this app helps you, you can support ongoing development with the buttons below.',
       'buyMeCoffee': 'Buy Me a Coffee',
       'afdian': 'Afdian',
+      'patreon': 'Patreon',
       'openSupportLinkFailed': 'Failed to open support link',
       'widgetSettings': 'Widgets',
       'widgetPreview': 'Preview',
@@ -465,6 +474,9 @@ class AppLocalizations {
   String get updateFrequencyDesc => _value('updateFrequencyDesc');
   String get autoUpdateFrequency => _value('autoUpdateFrequency');
   String get noAutoUpdate => _value('noAutoUpdate');
+  String get autoRefreshValue => _value('autoRefreshValue');
+  String get autoRefreshUnit => _value('autoRefreshUnit');
+  String get autoRefreshHint => _value('autoRefreshHint');
   String minutesLabel(int value) => '$value ${_value('minutesSuffix')}';
   String get disabledAutoUpdate => _value('disabledAutoUpdate');
   String get updatedAutoUpdate => _value('updatedAutoUpdate');
@@ -585,6 +597,20 @@ class AppLocalizations {
     }
   }
 
+  String refreshUnitLabel(String value) {
+    switch (value) {
+      case AppRefreshUnits.minute:
+        return locale.languageCode == 'zh' ? '分钟' : 'Minutes';
+      case AppRefreshUnits.hour:
+        return locale.languageCode == 'zh' ? '小时' : 'Hours';
+      case AppRefreshUnits.week:
+        return locale.languageCode == 'zh' ? '周' : 'Weeks';
+      case AppRefreshUnits.day:
+      default:
+        return locale.languageCode == 'zh' ? '天' : 'Days';
+    }
+  }
+
   String get sortMode => _value('sortMode');
   String currentSortMode(String value) => _format('currentSortMode', value);
   String get personalInfoHint => _value('personalInfoHint');
@@ -671,6 +697,7 @@ class AppLocalizations {
   String get supportProjectDesc => _value('supportProjectDesc');
   String get buyMeCoffee => _value('buyMeCoffee');
   String get afdian => _value('afdian');
+  String get patreon => _value('patreon');
   String get openSupportLinkFailed => _value('openSupportLinkFailed');
   String get widgetSettings => _value('widgetSettings');
   String get widgetPreview => _value('widgetPreview');

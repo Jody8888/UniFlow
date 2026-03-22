@@ -1,7 +1,7 @@
 ﻿name: Uniflow
 description: 西安交通大学校园通知个性化客户端
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

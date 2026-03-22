@@ -189,6 +189,9 @@ class _SettingPageState extends State<SettingPage> {
     final l10n = context.l10n;
     final preference = userProvider.preference;
     final messenger = ScaffoldMessenger.of(context);
+    final refreshValueController = TextEditingController(
+      text: '${preference.autoRefreshValue}',
+    );
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.large),
       children: [
@@ -196,26 +199,71 @@ class _SettingPageState extends State<SettingPage> {
         const SizedBox(height: AppSpacing.small),
         Text(l10n.updateFrequencyDesc),
         const SizedBox(height: AppSpacing.medium),
-        DropdownButtonFormField<int>(
-          initialValue: preference.updateFrequencyMinutes,
-          decoration: InputDecoration(labelText: l10n.autoUpdateFrequency),
-          items: AppConstants.updateFrequencyOptions.map((value) {
-            return DropdownMenuItem<int>(
-              value: value,
-              child: Text(value == -1 ? l10n.noAutoUpdate : l10n.minutesLabel(value)),
-            );
-          }).toList(),
-          onChanged: (value) async {
-            if (value == null) {
-              return;
-            }
-            await userProvider.updateUpdateFrequency(value);
-            if (!mounted) {
-              return;
-            }
-            _showMessage(messenger, value == -1 ? l10n.disabledAutoUpdate : l10n.updatedAutoUpdate);
-          },
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: refreshValueController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: l10n.autoRefreshValue),
+                onSubmitted: (raw) async {
+                  final parsed = int.tryParse(raw.trim());
+                  if (parsed == null) {
+                    return;
+                  }
+                  await userProvider.updateAutoRefresh(
+                    value: parsed,
+                    unit: preference.autoRefreshUnit,
+                  );
+                  if (!mounted) {
+                    return;
+                  }
+                  _showMessage(
+                    messenger,
+                    parsed == 0
+                        ? l10n.disabledAutoUpdate
+                        : l10n.updatedAutoUpdate,
+                  );
+                },
+              ),
+            ),
+            const SizedBox(width: AppSpacing.medium),
+            Expanded(
+              child: DropdownButtonFormField<String>(
+                initialValue: preference.autoRefreshUnit,
+                decoration: InputDecoration(labelText: l10n.autoRefreshUnit),
+                items: AppRefreshUnits.values.map((value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(l10n.refreshUnitLabel(value)),
+                  );
+                }).toList(),
+                onChanged: (value) async {
+                  if (value == null) {
+                    return;
+                  }
+                  final parsed = int.tryParse(refreshValueController.text.trim()) ??
+                      preference.autoRefreshValue;
+                  await userProvider.updateAutoRefresh(
+                    value: parsed,
+                    unit: value,
+                  );
+                  if (!mounted) {
+                    return;
+                  }
+                  _showMessage(
+                    messenger,
+                    parsed == 0
+                        ? l10n.disabledAutoUpdate
+                        : l10n.updatedAutoUpdate,
+                  );
+                },
+              ),
+            ),
+          ],
         ),
+        const SizedBox(height: AppSpacing.small),
+        Text(l10n.autoRefreshHint),
         const SizedBox(height: AppSpacing.large),
         Card(
           child: Padding(
@@ -704,7 +752,7 @@ class _SettingPageState extends State<SettingPage> {
                 const SizedBox(height: 4),
                 Text(l10n.maintainer(DeveloperInfo.maintainer)),
                 const SizedBox(height: 4),
-                Text(l10n.contact(DeveloperInfo.contact)),
+                Text(l10n.contact(DeveloperSupportLinks.contact)),
                 const SizedBox(height: AppSpacing.large),
                 Text(l10n.supportProject, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: AppSpacing.small),
@@ -723,6 +771,14 @@ class _SettingPageState extends State<SettingPage> {
                       onPressed: () => _openSupportLink(context, DeveloperInfo.afdianUrl),
                       icon: const Icon(Icons.favorite_border),
                       label: Text(l10n.afdian),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () => _openSupportLink(
+                        context,
+                        DeveloperSupportLinks.patreonUrl,
+                      ),
+                      icon: const Icon(Icons.favorite_outline),
+                      label: Text(l10n.patreon),
                     ),
                   ],
                 ),

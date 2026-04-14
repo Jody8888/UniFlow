@@ -8,6 +8,8 @@ class UserPreference {
     Set<String>? dislikedGenres,
     Map<String, double>? customWeights,
     int? updateFrequencyMinutes,
+    int? autoRefreshValue,
+    String? autoRefreshUnit,
     List<ApiSourceConfig>? apiSources,
     String? activeApiSourceId,
     String? languageCode,
@@ -26,7 +28,9 @@ class UserPreference {
         favoriteNoticeIds = favoriteNoticeIds ?? <String>{},
         dislikedGenres = dislikedGenres ?? <String>{},
         customWeights = _normalizeWeights(customWeights),
-        updateFrequencyMinutes = updateFrequencyMinutes ?? -1,
+        updateFrequencyMinutes = updateFrequencyMinutes ?? 24 * 60,
+        autoRefreshValue = _normalizeAutoRefreshValue(autoRefreshValue),
+        autoRefreshUnit = _normalizeAutoRefreshUnit(autoRefreshUnit),
         apiSources = _normalizeSources(apiSources),
         activeApiSourceId = activeApiSourceId ?? ApiSourceConfig.mock().id,
         languageCode = languageCode ?? AppLanguageOptions.system,
@@ -49,6 +53,8 @@ class UserPreference {
   final Set<String> dislikedGenres;
   final Map<String, double> customWeights;
   final int updateFrequencyMinutes;
+  final int autoRefreshValue;
+  final String autoRefreshUnit;
   final List<ApiSourceConfig> apiSources;
   final String activeApiSourceId;
   final String languageCode;
@@ -72,7 +78,9 @@ class UserPreference {
       customWeights: <String, double>{
         for (final genre in AppConstants.noticeGenres) genre: 0,
       },
-      updateFrequencyMinutes: -1,
+      updateFrequencyMinutes: 24 * 60,
+      autoRefreshValue: 1,
+      autoRefreshUnit: AppRefreshUnits.day,
       apiSources: const <ApiSourceConfig>[ApiSourceConfig(
         id: 'fastapi-default',
         name: '本地 FastAPI',
@@ -107,7 +115,12 @@ class UserPreference {
       favoriteNoticeIds: _readStringSet(json['favoriteNoticeIds']),
       dislikedGenres: _readStringSet(json['dislikedGenres']),
       customWeights: _readDoubleMap(json['customWeights']),
-      updateFrequencyMinutes: _readInt(json['updateFrequencyMinutes']) ?? -1,
+      updateFrequencyMinutes:
+          _readInt(json['updateFrequencyMinutes']) ?? 24 * 60,
+      autoRefreshValue: _readInt(json['autoRefreshValue']) ??
+          _legacyRefreshValue(_readInt(json['updateFrequencyMinutes'])),
+      autoRefreshUnit: json['autoRefreshUnit']?.toString() ??
+          _legacyRefreshUnit(_readInt(json['updateFrequencyMinutes'])),
       apiSources: _readSources(json['apiSources']),
       activeApiSourceId: json['activeApiSourceId']?.toString(),
       languageCode: json['languageCode']?.toString(),
@@ -131,7 +144,9 @@ class UserPreference {
       'favoriteNoticeIds': favoriteNoticeIds.toList(),
       'dislikedGenres': dislikedGenres.toList(),
       'customWeights': customWeights,
-      'updateFrequencyMinutes': updateFrequencyMinutes,
+      'updateFrequencyMinutes': resolvedAutoRefreshMinutes,
+      'autoRefreshValue': autoRefreshValue,
+      'autoRefreshUnit': autoRefreshUnit,
       'apiSources': apiSources.map((item) => item.toJson()).toList(),
       'activeApiSourceId': activeApiSourceId,
       'languageCode': languageCode,
@@ -155,6 +170,8 @@ class UserPreference {
     Set<String>? dislikedGenres,
     Map<String, double>? customWeights,
     int? updateFrequencyMinutes,
+    int? autoRefreshValue,
+    String? autoRefreshUnit,
     List<ApiSourceConfig>? apiSources,
     String? activeApiSourceId,
     String? languageCode,
@@ -177,6 +194,8 @@ class UserPreference {
       customWeights: customWeights ?? this.customWeights,
       updateFrequencyMinutes:
           updateFrequencyMinutes ?? this.updateFrequencyMinutes,
+      autoRefreshValue: autoRefreshValue ?? this.autoRefreshValue,
+      autoRefreshUnit: autoRefreshUnit ?? this.autoRefreshUnit,
       apiSources: apiSources ?? this.apiSources,
       activeApiSourceId: activeApiSourceId ?? this.activeApiSourceId,
       languageCode: languageCode ?? this.languageCode,
@@ -203,6 +222,13 @@ class UserPreference {
 
   bool sortAscendingOf(String mode) {
     return sortAscendingByMode[mode] ?? false;
+  }
+
+  int get resolvedAutoRefreshMinutes {
+    return AppRefreshUnits.toMinutes(
+      value: autoRefreshValue,
+      unit: autoRefreshUnit,
+    );
   }
 
   static Map<String, double> _normalizeWeights(Map<String, double>? weights) {
@@ -346,6 +372,57 @@ class UserPreference {
       return null;
     }
     return '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
+  }
+
+  static int _normalizeAutoRefreshValue(int? value) {
+    if (value == null) {
+      return 1;
+    }
+    if (value < 0) {
+      return 0;
+    }
+    return value;
+  }
+
+  static String _normalizeAutoRefreshUnit(String? value) {
+    if (AppRefreshUnits.values.contains(value)) {
+      return value!;
+    }
+    return AppRefreshUnits.day;
+  }
+
+  static int _legacyRefreshValue(int? minutes) {
+    final safeMinutes = minutes ?? 24 * 60;
+    if (safeMinutes <= 0) {
+      return 0;
+    }
+    if (safeMinutes % (60 * 24 * 7) == 0) {
+      return safeMinutes ~/ (60 * 24 * 7);
+    }
+    if (safeMinutes % (60 * 24) == 0) {
+      return safeMinutes ~/ (60 * 24);
+    }
+    if (safeMinutes % 60 == 0) {
+      return safeMinutes ~/ 60;
+    }
+    return safeMinutes;
+  }
+
+  static String _legacyRefreshUnit(int? minutes) {
+    final safeMinutes = minutes ?? 24 * 60;
+    if (safeMinutes <= 0) {
+      return AppRefreshUnits.day;
+    }
+    if (safeMinutes % (60 * 24 * 7) == 0) {
+      return AppRefreshUnits.week;
+    }
+    if (safeMinutes % (60 * 24) == 0) {
+      return AppRefreshUnits.day;
+    }
+    if (safeMinutes % 60 == 0) {
+      return AppRefreshUnits.hour;
+    }
+    return AppRefreshUnits.minute;
   }
 
   static Map<String, bool> _normalizeSortAscending(Map<String, bool>? value) {

@@ -87,9 +87,20 @@ class UserProvider extends ChangeNotifier {
     await _savePreference(_preference.copyWith(customWeights: weights));
   }
 
-  Future<void> updateUpdateFrequency(int minutes) async {
+  Future<void> updateAutoRefresh({
+    required int value,
+    required String unit,
+  }) async {
+    final safeValue = value < 0 ? 0 : value;
     await _savePreference(
-      _preference.copyWith(updateFrequencyMinutes: minutes),
+      _preference.copyWith(
+        autoRefreshValue: safeValue,
+        autoRefreshUnit: unit,
+        updateFrequencyMinutes: AppRefreshUnits.toMinutes(
+          value: safeValue,
+          unit: unit,
+        ),
+      ),
     );
   }
 
@@ -136,6 +147,8 @@ class UserProvider extends ChangeNotifier {
       dislikedGenres: _preference.dislikedGenres,
       customWeights: _preference.customWeights,
       updateFrequencyMinutes: _preference.updateFrequencyMinutes,
+      autoRefreshValue: _preference.autoRefreshValue,
+      autoRefreshUnit: _preference.autoRefreshUnit,
       apiSources: _preference.apiSources,
       activeApiSourceId: _preference.activeApiSourceId,
       languageCode: _preference.languageCode,

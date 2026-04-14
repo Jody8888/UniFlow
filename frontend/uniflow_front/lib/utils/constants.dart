@@ -153,8 +153,6 @@ class AppConstants {
     },
   };
 
-  static const List<int> updateFrequencyOptions = <int>[-1, 5, 15, 30, 60];
-
   static const Map<String, String> sourceAliases = <String, String>{
     'dean.xjtu.edu.cn': '教务处',
     'dw.xjtu.edu.cn': '党委',
@@ -391,7 +389,7 @@ class AppThemePalette {
 
 class DeveloperInfo {
   static const String teamName = 'UniFlow';
-  static const String version = '1.0.0';
+  static const String version = '1.0.1';
   static const String maintainer = 'Jung233 & Jody & Thusci';
   static const String description = """
 本项目由Jung233,Jody,Thusci社员共同开发，旨在将校内分散的通知信息进行统一抓取、结构化处理与时间线化展示，提升信息获取效率。
@@ -418,9 +416,39 @@ class DeveloperInfo {
   OpenAI Codex
   Webmin Panel
   """;
-  static const String contact = 'https://github.com/Jody8888/Uniflow';
-  static const String buyMeACoffeeUrl = 'https://buymeacoffee.com/thusci';
+  static const String buyMeACoffeeUrl = 'https://ko-fi.com/thusci';
   static const String afdianUrl = 'https://ifdian.net/a/thusci';
+  static const String patreonUrl = 'https://www.patreon.com/Thusci';
+  static const String contact = DeveloperSupportLinks.contact;
+}
+
+class AppRefreshUnits {
+  static const String minute = 'minute';
+  static const String hour = 'hour';
+  static const String day = 'day';
+  static const String week = 'week';
+
+  static const List<String> values = <String>[minute, hour, day, week];
+
+  static int toMinutes({
+    required int value,
+    required String unit,
+  }) {
+    if (value <= 0) {
+      return 0;
+    }
+    switch (unit) {
+      case hour:
+        return value * 60;
+      case day:
+        return value * 60 * 24;
+      case week:
+        return value * 60 * 24 * 7;
+      case minute:
+      default:
+        return value;
+    }
+  }
 }
 
 class AppSpacing {
@@ -601,4 +629,11 @@ class AppTheme {
           ),
     );
   }
+}
+
+class DeveloperSupportLinks {
+  static const String contact = 'https://github.com/Jody8888/Uniflow';
+  static const String buyMeACoffeeUrl = 'https://ko-fi.com/thusci';
+  static const String afdianUrl = 'https://ifdian.net/a/thusci';
+  static const String patreonUrl = 'https://www.patreon.com/Thusci';
 }

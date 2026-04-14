@@ -66,15 +66,6 @@
   <a href="https://github.com/Jody8888/UniFlow/releases">
     <img src="https://img.shields.io/badge/Windows-Download-0078D6?style=for-the-badge&logo=windows&logoColor=white"/>
   </a>
-  <a href="https://github.com/Jody8888/UniFlow/releases">
-    <img src="https://img.shields.io/badge/Linux-Download-FCC624?style=for-the-badge&logo=linux&logoColor=black"/>
-  </a>
-  <a href="https://github.com/Jody8888/UniFlow/releases">
-    <img src="https://img.shields.io/badge/macOS-Download-000000?style=for-the-badge&logo=apple&logoColor=white"/>
-  </a>
-  <a href="https://github.com/Jody8888/UniFlow/releases">
-    <img src="https://img.shields.io/badge/iOS-TestFlight-0D96F6?style=for-the-badge&logo=apple&logoColor=white"/>
-  </a>
 </p>
 
 ---
@@ -159,11 +150,16 @@ AI        → 信息精炼与结构化
 
 ### Buy Me a Coffee
 
-👉 https://www.buymeacoffee.com/thusci
+👉 [Ko-fi](https://ko-fi.com/thusci)
 
 ### 爱发电
 
-👉 https://ifdian.net/a/thusci
+👉 [Afadian](https://ifdian.net/a/thusci)
+
+
+### Patreon
+
+👉 [Patreon](https://www.patreon.com/Thusci)
 
 ---
 

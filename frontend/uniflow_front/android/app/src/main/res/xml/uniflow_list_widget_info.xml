@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:initialLayout="@layout/uniflow_widget_list"
+    android:minHeight="170dp"
+    android:minResizeHeight="140dp"
+    android:minResizeWidth="160dp"
+    android:minWidth="220dp"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen" />

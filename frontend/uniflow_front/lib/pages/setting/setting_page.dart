@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -7,6 +7,7 @@ import '../../models/api_source_config.dart';
 import '../../providers/notice_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../utils/constants.dart';
+import '../../widgets/desktop_widget_preview.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -51,7 +52,8 @@ class _SettingPageState extends State<SettingPage> {
       _SettingSectionData(
         title: l10n.update,
         icon: Icons.update_outlined,
-        builder: () => _buildUpdateSection(context, userProvider, noticeProvider),
+        builder: () =>
+            _buildUpdateSection(context, userProvider, noticeProvider),
       ),
       _SettingSectionData(
         title: l10n.dataSources,
@@ -66,7 +68,14 @@ class _SettingPageState extends State<SettingPage> {
       _SettingSectionData(
         title: l10n.general,
         icon: Icons.settings_outlined,
-        builder: () => _buildGeneralSection(context, userProvider, noticeProvider),
+        builder: () =>
+            _buildGeneralSection(context, userProvider, noticeProvider),
+      ),
+      _SettingSectionData(
+        title: l10n.widgetSettings,
+        icon: Icons.widgets_outlined,
+        builder: () =>
+            _buildWidgetSection(context, userProvider, noticeProvider),
       ),
       _SettingSectionData(
         title: l10n.about,
@@ -192,7 +201,8 @@ class _SettingPageState extends State<SettingPage> {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.large),
       children: [
-        Text(l10n.updateFrequency, style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.updateFrequency,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.small),
         Text(l10n.updateFrequencyDesc),
         const SizedBox(height: AppSpacing.medium),
@@ -202,7 +212,8 @@ class _SettingPageState extends State<SettingPage> {
           items: AppConstants.updateFrequencyOptions.map((value) {
             return DropdownMenuItem<int>(
               value: value,
-              child: Text(value == -1 ? l10n.noAutoUpdate : l10n.minutesLabel(value)),
+              child: Text(
+                  value == -1 ? l10n.noAutoUpdate : l10n.minutesLabel(value)),
             );
           }).toList(),
           onChanged: (value) async {
@@ -213,7 +224,8 @@ class _SettingPageState extends State<SettingPage> {
             if (!mounted) {
               return;
             }
-            _showMessage(messenger, value == -1 ? l10n.disabledAutoUpdate : l10n.updatedAutoUpdate);
+            _showMessage(messenger,
+                value == -1 ? l10n.disabledAutoUpdate : l10n.updatedAutoUpdate);
           },
         ),
         const SizedBox(height: AppSpacing.large),
@@ -223,19 +235,27 @@ class _SettingPageState extends State<SettingPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.currentDataSource, style: Theme.of(context).textTheme.titleMedium),
+                Text(l10n.currentDataSource,
+                    style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: AppSpacing.small),
                 Text(preference.activeApiSource.name),
                 const SizedBox(height: 4),
-                Text(preference.activeApiSource.displayUrl, style: Theme.of(context).textTheme.bodySmall),
+                Text(preference.activeApiSource.displayUrl,
+                    style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: AppSpacing.medium),
                 FilledButton.icon(
                   onPressed: () async {
-                    final success = await noticeProvider.refreshNotices(showLoading: true);
+                    final success =
+                        await noticeProvider.refreshNotices(showLoading: true);
                     if (!mounted) {
                       return;
                     }
-                    _showMessage(messenger, success ? l10n.manualRefreshDone : noticeProvider.errorMessage ?? l10n.manualRefreshFailed);
+                    _showMessage(
+                        messenger,
+                        success
+                            ? l10n.manualRefreshDone
+                            : noticeProvider.errorMessage ??
+                                l10n.manualRefreshFailed);
                   },
                   icon: const Icon(Icons.refresh),
                   label: Text(l10n.refreshNow),
@@ -248,7 +268,8 @@ class _SettingPageState extends State<SettingPage> {
     );
   }
 
-  Widget _buildApiSourceSection(BuildContext context, UserProvider userProvider) {
+  Widget _buildApiSourceSection(
+      BuildContext context, UserProvider userProvider) {
     final l10n = context.l10n;
     final preference = userProvider.preference;
     final messenger = ScaffoldMessenger.of(context);
@@ -257,7 +278,9 @@ class _SettingPageState extends State<SettingPage> {
       children: [
         Row(
           children: [
-            Expanded(child: Text(l10n.dataSources, style: Theme.of(context).textTheme.titleLarge)),
+            Expanded(
+                child: Text(l10n.dataSources,
+                    style: Theme.of(context).textTheme.titleLarge)),
             FilledButton.icon(
               onPressed: () => _createOrEditSource(context, userProvider),
               icon: const Icon(Icons.add),
@@ -278,7 +301,8 @@ class _SettingPageState extends State<SettingPage> {
                 if (!mounted) {
                   return;
                 }
-                _showMessage(messenger, l10n.switchedApiSourceMessage(source.name));
+                _showMessage(
+                    messenger, l10n.switchedApiSourceMessage(source.name));
               },
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.medium),
@@ -287,9 +311,14 @@ class _SettingPageState extends State<SettingPage> {
                   children: [
                     Row(
                       children: [
-                        Expanded(child: Text(source.name, style: Theme.of(context).textTheme.titleMedium)),
+                        Expanded(
+                            child: Text(source.name,
+                                style:
+                                    Theme.of(context).textTheme.titleMedium)),
                         if (selected)
-                          Chip(label: Text(l10n.currentSource), side: BorderSide.none),
+                          Chip(
+                              label: Text(l10n.currentSource),
+                              side: BorderSide.none),
                       ],
                     ),
                     const SizedBox(height: AppSpacing.small),
@@ -300,7 +329,9 @@ class _SettingPageState extends State<SettingPage> {
                       runSpacing: AppSpacing.small,
                       children: [
                         OutlinedButton(
-                          onPressed: () => _createOrEditSource(context, userProvider, source: source),
+                          onPressed: () => _createOrEditSource(
+                              context, userProvider,
+                              source: source),
                           child: Text(l10n.edit),
                         ),
                         OutlinedButton(
@@ -311,7 +342,10 @@ class _SettingPageState extends State<SettingPage> {
                                   if (!mounted) {
                                     return;
                                   }
-                                  _showMessage(messenger, l10n.removedApiSourceMessage(source.name));
+                                  _showMessage(
+                                      messenger,
+                                      l10n.removedApiSourceMessage(
+                                          source.name));
                                 },
                           child: Text(l10n.delete),
                         ),
@@ -333,7 +367,8 @@ class _SettingPageState extends State<SettingPage> {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.large),
       children: [
-        Text(l10n.manualWeightSettings, style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.manualWeightSettings,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.small),
         Text(l10n.manualWeightDesc),
         const SizedBox(height: AppSpacing.medium),
@@ -344,7 +379,8 @@ class _SettingPageState extends State<SettingPage> {
               title: Text(genre),
               subtitle: Text('${l10n.weights}: ${value.toStringAsFixed(2)}'),
               trailing: FilledButton.tonal(
-                onPressed: () => _editWeight(context, userProvider, genre, value),
+                onPressed: () =>
+                    _editWeight(context, userProvider, genre, value),
                 child: Text(l10n.manualInput),
               ),
             ),
@@ -354,7 +390,8 @@ class _SettingPageState extends State<SettingPage> {
     );
   }
 
-  Widget _buildGeneralSection(BuildContext context, UserProvider userProvider, NoticeProvider noticeProvider) {
+  Widget _buildGeneralSection(BuildContext context, UserProvider userProvider,
+      NoticeProvider noticeProvider) {
     final l10n = context.l10n;
     final preference = userProvider.preference;
     final messenger = ScaffoldMessenger.of(context);
@@ -362,13 +399,15 @@ class _SettingPageState extends State<SettingPage> {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.large),
       children: [
-        Text(l10n.homeSortStandard, style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.homeSortStandard,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.small),
         DropdownButtonFormField<String>(
           initialValue: preference.homeSortMode,
           decoration: InputDecoration(labelText: l10n.defaultSortMode),
           items: AppSortModes.values.map((mode) {
-            return DropdownMenuItem<String>(value: mode, child: Text(l10n.sortModeLabel(mode)));
+            return DropdownMenuItem<String>(
+                value: mode, child: Text(l10n.sortModeLabel(mode)));
           }).toList(),
           onChanged: (value) async {
             if (value == null) {
@@ -382,13 +421,15 @@ class _SettingPageState extends State<SettingPage> {
           },
         ),
         const SizedBox(height: AppSpacing.large),
-        Text(l10n.appearanceSettings, style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.appearanceSettings,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.small),
         DropdownButtonFormField<String>(
           initialValue: preference.themeMode,
           decoration: InputDecoration(labelText: l10n.themeMode),
           items: AppThemeModes.values.map((value) {
-            return DropdownMenuItem<String>(value: value, child: Text(l10n.themeModeLabel(value)));
+            return DropdownMenuItem<String>(
+                value: value, child: Text(l10n.themeModeLabel(value)));
           }).toList(),
           onChanged: (value) async {
             if (value == null) {
@@ -412,7 +453,11 @@ class _SettingPageState extends State<SettingPage> {
               value: value,
               child: Row(
                 children: [
-                  Container(width: 14, height: 14, decoration: BoxDecoration(color: seedColor, shape: BoxShape.circle)),
+                  Container(
+                      width: 14,
+                      height: 14,
+                      decoration: BoxDecoration(
+                          color: seedColor, shape: BoxShape.circle)),
                   const SizedBox(width: AppSpacing.small),
                   Container(
                     width: 14,
@@ -540,13 +585,15 @@ class _SettingPageState extends State<SettingPage> {
             ),
           ),
         const SizedBox(height: AppSpacing.large),
-        Text(l10n.timelinePeriod, style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.timelinePeriod,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.small),
         DropdownButtonFormField<String>(
           initialValue: preference.timelineRange,
           decoration: InputDecoration(labelText: l10n.timelineRange),
           items: AppTimelineRanges.values.map((value) {
-            return DropdownMenuItem<String>(value: value, child: Text(l10n.timelineRangeLabel(value)));
+            return DropdownMenuItem<String>(
+                value: value, child: Text(l10n.timelineRangeLabel(value)));
           }).toList(),
           onChanged: (value) async {
             if (value == null) {
@@ -560,13 +607,15 @@ class _SettingPageState extends State<SettingPage> {
           },
         ),
         const SizedBox(height: AppSpacing.large),
-        Text(l10n.settingsDisplayMode, style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.settingsDisplayMode,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.small),
         DropdownButtonFormField<String>(
           initialValue: preference.settingsLayout,
           decoration: InputDecoration(labelText: l10n.settingsDisplayMode),
           items: AppSettingsLayouts.values.map((value) {
-            return DropdownMenuItem<String>(value: value, child: Text(l10n.settingsLayoutLabel(value)));
+            return DropdownMenuItem<String>(
+                value: value, child: Text(l10n.settingsLayoutLabel(value)));
           }).toList(),
           onChanged: (value) async {
             if (value == null) {
@@ -580,13 +629,15 @@ class _SettingPageState extends State<SettingPage> {
           },
         ),
         const SizedBox(height: AppSpacing.large),
-        Text(l10n.languageSettings, style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.languageSettings,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.small),
         DropdownButtonFormField<String>(
           initialValue: preference.languageCode,
           decoration: InputDecoration(labelText: l10n.appLanguage),
           items: AppLanguageOptions.values.map((value) {
-            return DropdownMenuItem<String>(value: value, child: Text(l10n.languageLabel(value)));
+            return DropdownMenuItem<String>(
+                value: value, child: Text(l10n.languageLabel(value)));
           }).toList(),
           onChanged: (value) async {
             if (value == null) {
@@ -627,7 +678,8 @@ class _SettingPageState extends State<SettingPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.dataManagement, style: Theme.of(context).textTheme.titleMedium),
+                Text(l10n.dataManagement,
+                    style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: AppSpacing.medium),
                 FilledButton.tonalIcon(
                   onPressed: () async {
@@ -642,7 +694,8 @@ class _SettingPageState extends State<SettingPage> {
                 ),
                 const SizedBox(height: AppSpacing.medium),
                 FilledButton.icon(
-                  style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
+                  style:
+                      FilledButton.styleFrom(backgroundColor: AppColors.danger),
                   onPressed: () async {
                     final confirmed = await showDialog<bool>(
                       context: context,
@@ -652,11 +705,13 @@ class _SettingPageState extends State<SettingPage> {
                           content: Text(l10n.resetAllSettingsConfirm),
                           actions: [
                             TextButton(
-                              onPressed: () => Navigator.of(dialogContext).pop(false),
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(false),
                               child: Text(l10n.cancel),
                             ),
                             FilledButton(
-                              onPressed: () => Navigator.of(dialogContext).pop(true),
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(true),
                               child: Text(l10n.resetAllSettings),
                             ),
                           ],
@@ -685,6 +740,106 @@ class _SettingPageState extends State<SettingPage> {
     );
   }
 
+  Widget _buildWidgetSection(
+    BuildContext context,
+    UserProvider userProvider,
+    NoticeProvider noticeProvider,
+  ) {
+    final l10n = context.l10n;
+    final preference = userProvider.preference;
+    final messenger = ScaffoldMessenger.of(context);
+    final previewNotices = noticeProvider.notices.take(4).toList();
+
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.large),
+      children: [
+        Text(
+          l10n.widgetSettings,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: AppSpacing.small),
+        Text(l10n.widgetSectionDesc),
+        const SizedBox(height: AppSpacing.large),
+        DropdownButtonFormField<String>(
+          initialValue: preference.widgetListSize,
+          decoration: InputDecoration(labelText: l10n.listWidgetSize),
+          items: AppWidgetSizes.values.map((value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(l10n.widgetSizeLabel(value)),
+            );
+          }).toList(),
+          onChanged: (value) async {
+            if (value == null) {
+              return;
+            }
+            await userProvider.updateWidgetListSize(value);
+            if (!mounted) {
+              return;
+            }
+            _showMessage(messenger, l10n.widgetConfigSaved);
+          },
+        ),
+        const SizedBox(height: AppSpacing.medium),
+        DropdownButtonFormField<String>(
+          initialValue: preference.widgetTimelineSize,
+          decoration: InputDecoration(labelText: l10n.timelineWidgetSize),
+          items: AppWidgetSizes.values.map((value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(l10n.widgetSizeLabel(value)),
+            );
+          }).toList(),
+          onChanged: (value) async {
+            if (value == null) {
+              return;
+            }
+            await userProvider.updateWidgetTimelineSize(value);
+            if (!mounted) {
+              return;
+            }
+            _showMessage(messenger, l10n.widgetConfigSaved);
+          },
+        ),
+        const SizedBox(height: AppSpacing.large),
+        Text(
+          l10n.widgetPreview,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: AppSpacing.small),
+        if (previewNotices.isEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.medium),
+              child: Text(l10n.widgetEmptyHint),
+            ),
+          )
+        else ...[
+          DesktopWidgetPreview(
+            title: l10n.widgetListMode,
+            mode: 'list',
+            size: preference.widgetListSize,
+            notices: previewNotices,
+          ),
+          const SizedBox(height: AppSpacing.medium),
+          DesktopWidgetPreview(
+            title: l10n.widgetTimelineMode,
+            mode: 'timeline',
+            size: preference.widgetTimelineSize,
+            notices: previewNotices,
+          ),
+        ],
+        const SizedBox(height: AppSpacing.large),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.medium),
+            child: Text(l10n.widgetAddHint),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildAboutSection(BuildContext context) {
     final l10n = context.l10n;
     return ListView(
@@ -696,7 +851,8 @@ class _SettingPageState extends State<SettingPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(DeveloperInfo.teamName, style: Theme.of(context).textTheme.headlineSmall),
+                Text(DeveloperInfo.teamName,
+                    style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: AppSpacing.small),
                 Text(DeveloperInfo.description),
                 const SizedBox(height: AppSpacing.medium),
@@ -706,7 +862,8 @@ class _SettingPageState extends State<SettingPage> {
                 const SizedBox(height: 4),
                 Text(l10n.contact(DeveloperInfo.contact)),
                 const SizedBox(height: AppSpacing.large),
-                Text(l10n.supportProject, style: Theme.of(context).textTheme.titleMedium),
+                Text(l10n.supportProject,
+                    style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: AppSpacing.small),
                 Text(l10n.supportProjectDesc),
                 const SizedBox(height: AppSpacing.medium),
@@ -715,12 +872,14 @@ class _SettingPageState extends State<SettingPage> {
                   runSpacing: AppSpacing.small,
                   children: [
                     FilledButton.icon(
-                      onPressed: () => _openSupportLink(context, DeveloperInfo.buyMeACoffeeUrl),
+                      onPressed: () => _openSupportLink(
+                          context, DeveloperInfo.buyMeACoffeeUrl),
                       icon: const Icon(Icons.local_cafe_outlined),
                       label: Text(l10n.buyMeCoffee),
                     ),
                     OutlinedButton.icon(
-                      onPressed: () => _openSupportLink(context, DeveloperInfo.afdianUrl),
+                      onPressed: () =>
+                          _openSupportLink(context, DeveloperInfo.afdianUrl),
                       icon: const Icon(Icons.favorite_border),
                       label: Text(l10n.afdian),
                     ),
@@ -733,12 +892,17 @@ class _SettingPageState extends State<SettingPage> {
       ],
     );
   }
-  Future<void> _createOrEditSource(BuildContext context, UserProvider userProvider, {ApiSourceConfig? source}) async {
+
+  Future<void> _createOrEditSource(
+      BuildContext context, UserProvider userProvider,
+      {ApiSourceConfig? source}) async {
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
     final nameController = TextEditingController(text: source?.name ?? '');
-    final baseUrlController = TextEditingController(text: source?.baseUrl ?? '');
-    final pathController = TextEditingController(text: source?.noticePath ?? AppConstants.noticePath);
+    final baseUrlController =
+        TextEditingController(text: source?.baseUrl ?? '');
+    final pathController = TextEditingController(
+        text: source?.noticePath ?? AppConstants.noticePath);
     final apiKeyController = TextEditingController(text: source?.apiKey ?? '');
     var useMockData = source?.useMockData ?? false;
 
@@ -748,16 +912,24 @@ class _SettingPageState extends State<SettingPage> {
         return StatefulBuilder(
           builder: (dialogStateContext, setState) {
             return AlertDialog(
-              title: Text(source == null ? l10n.addApiSource : l10n.editApiSource),
+              title:
+                  Text(source == null ? l10n.addApiSource : l10n.editApiSource),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextField(controller: nameController, decoration: InputDecoration(labelText: l10n.name)),
+                    TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(labelText: l10n.name)),
                     const SizedBox(height: AppSpacing.medium),
-                    TextField(controller: baseUrlController, decoration: InputDecoration(labelText: l10n.baseUrl)),
+                    TextField(
+                        controller: baseUrlController,
+                        decoration: InputDecoration(labelText: l10n.baseUrl)),
                     const SizedBox(height: AppSpacing.medium),
-                    TextField(controller: pathController, decoration: InputDecoration(labelText: l10n.noticePath)),
+                    TextField(
+                        controller: pathController,
+                        decoration:
+                            InputDecoration(labelText: l10n.noticePath)),
                     const SizedBox(height: AppSpacing.medium),
                     TextField(
                       controller: apiKeyController,
@@ -781,14 +953,19 @@ class _SettingPageState extends State<SettingPage> {
                 ),
               ),
               actions: [
-                TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(l10n.cancel)),
+                TextButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    child: Text(l10n.cancel)),
                 FilledButton(
                   onPressed: () {
                     final name = nameController.text.trim();
                     final baseUrl = baseUrlController.text.trim();
-                    final noticePath = pathController.text.trim().isEmpty ? AppConstants.noticePath : pathController.text.trim();
+                    final noticePath = pathController.text.trim().isEmpty
+                        ? AppConstants.noticePath
+                        : pathController.text.trim();
                     final next = ApiSourceConfig(
-                      id: source?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+                      id: source?.id ??
+                          DateTime.now().millisecondsSinceEpoch.toString(),
                       name: name.isEmpty ? l10n.unnamedSource : name,
                       baseUrl: baseUrl,
                       noticePath: noticePath,
@@ -825,10 +1002,12 @@ class _SettingPageState extends State<SettingPage> {
     }
   }
 
-  Future<void> _editWeight(BuildContext context, UserProvider userProvider, String genre, double currentValue) async {
+  Future<void> _editWeight(BuildContext context, UserProvider userProvider,
+      String genre, double currentValue) async {
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
-    final controller = TextEditingController(text: currentValue.toStringAsFixed(2));
+    final controller =
+        TextEditingController(text: currentValue.toStringAsFixed(2));
     final result = await showDialog<double>(
       context: context,
       builder: (dialogContext) {
@@ -836,11 +1015,14 @@ class _SettingPageState extends State<SettingPage> {
           title: Text(l10n.setGenreWeight(genre)),
           content: TextField(
             controller: controller,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+            keyboardType: const TextInputType.numberWithOptions(
+                decimal: true, signed: true),
             decoration: InputDecoration(labelText: l10n.weightHint),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(l10n.cancel)),
+            TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(l10n.cancel)),
             FilledButton(
               onPressed: () {
                 final value = double.tryParse(controller.text.trim());
@@ -938,7 +1120,8 @@ class _SettingPageState extends State<SettingPage> {
       return;
     }
     try {
-      final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      final success =
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!success && mounted) {
         _showMessage(messenger, l10n.openSupportLinkFailed);
       }
@@ -962,7 +1145,8 @@ class _SettingPageState extends State<SettingPage> {
 }
 
 class _SettingSectionData {
-  const _SettingSectionData({required this.title, required this.icon, required this.builder});
+  const _SettingSectionData(
+      {required this.title, required this.icon, required this.builder});
 
   final String title;
   final IconData icon;
@@ -1058,7 +1242,8 @@ class _ThemeColorDialogState extends State<_ThemeColorDialog> {
                 spacing: AppSpacing.small,
                 runSpacing: AppSpacing.small,
                 children: AppThemePresets.colorChoices.map((color) {
-                  final selected = color.toARGB32() == _selectedColor.toARGB32();
+                  final selected =
+                      color.toARGB32() == _selectedColor.toARGB32();
                   return InkWell(
                     onTap: () => _updateColor(color),
                     borderRadius: BorderRadius.circular(10),
@@ -1083,7 +1268,8 @@ class _ThemeColorDialogState extends State<_ThemeColorDialog> {
               const SizedBox(height: AppSpacing.medium),
               TextField(
                 controller: _hexController,
-                decoration: InputDecoration(labelText: l10n.customThemeColorHint),
+                decoration:
+                    InputDecoration(labelText: l10n.customThemeColorHint),
                 onChanged: (value) {
                   final parsed = AppThemePresets.parseHexColor(value);
                   if (parsed != null) {

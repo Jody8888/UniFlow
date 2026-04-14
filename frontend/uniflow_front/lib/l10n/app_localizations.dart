@@ -1,4 +1,4 @@
-﻿import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart';
 
 import '../utils/constants.dart';
 
@@ -28,8 +28,7 @@ class AppLocalizations {
       'general': '通用',
       'about': '关于',
       'updateFrequency': '更新频率',
-      'updateFrequencyDesc':
-          '-1 表示不自动更新；启用后会在应用运行期间按固定分钟间隔自动刷新。',
+      'updateFrequencyDesc': '-1 表示不自动更新；启用后会在应用运行期间按固定分钟间隔自动刷新。',
       'autoUpdateFrequency': '自动更新频率',
       'noAutoUpdate': '不自动更新 (-1)',
       'minutesSuffix': '分钟',
@@ -90,6 +89,9 @@ class AppLocalizations {
       'widgetSizeMedium': '中',
       'widgetSizeLarge': '大',
       'widgetConfigSaved': '桌面小组件设置已更新',
+      'widgetSectionDesc': 'Android 桌面小组件会使用当前缓存通知，并在应用内数据或小组件设置变更后自动同步。',
+      'widgetEmptyHint': '当前还没有可预览的通知，首次刷新成功后小组件会显示内容。',
+      'widgetAddHint': '设置完成后，可在 Android 桌面长按空白处，从小组件列表中添加 UniFlow。',
       'timelineView': '时间线',
       'noticeView': '通知',
       'favoritesView': '收藏',
@@ -114,8 +116,7 @@ class AppLocalizations {
       'clearCache': '清除本地通知缓存',
       'cacheCleared': '本地通知缓存已清除',
       'resetAllSettings': '重置所有设置',
-      'resetAllSettingsConfirm':
-          '这会清空通知缓存、个人信息、已读状态和个性化偏好，确认继续吗？',
+      'resetAllSettingsConfirm': '这会清空通知缓存、个人信息、已读状态和个性化偏好，确认继续吗？',
       'allSettingsReset': '所有设置已重置',
       'developerInfo': '开发者信息',
       'personalInfo': '个人信息',
@@ -255,7 +256,8 @@ class AppLocalizations {
       'edit': 'Edit',
       'delete': 'Delete',
       'manualWeightSettings': 'Manual Weight Settings',
-      'manualWeightDesc': 'Enter a custom weight for each notice type. Allowed range is -0.5 to 0.5.',
+      'manualWeightDesc':
+          'Enter a custom weight for each notice type. Allowed range is -0.5 to 0.5.',
       'manualInput': 'Manual Input',
       'homeSortStandard': 'Home Sorting',
       'defaultSortMode': 'Default Sort Mode',
@@ -301,6 +303,12 @@ class AppLocalizations {
       'widgetSizeMedium': 'Medium',
       'widgetSizeLarge': 'Large',
       'widgetConfigSaved': 'Widget settings updated',
+      'widgetSectionDesc':
+          'Android widgets use the current cached notices and sync automatically after in-app data or widget setting changes.',
+      'widgetEmptyHint':
+          'There are no notices to preview yet. The widget will show content after the first successful refresh.',
+      'widgetAddHint':
+          'After saving your preferences, long press on the Android home screen and add UniFlow from the widget picker.',
       'timelineView': 'Timeline',
       'noticeView': 'Notices',
       'favoritesView': 'Favorites',
@@ -338,7 +346,8 @@ class AppLocalizations {
       'loadingNotices': 'Loading campus notices...',
       'loadFailed': 'Load failed',
       'noNotice': 'No notices are available right now',
-      'allFiltered': 'All notice types are filtered out. Restore them in Settings.',
+      'allFiltered':
+          'All notice types are filtered out. Restore them in Settings.',
       'updatedNotices': 'Notices updated',
       'refreshFailed': 'Refresh failed, please try again later',
       'loadMoreFailed': 'Failed to load more',
@@ -360,7 +369,8 @@ class AppLocalizations {
       'addToFavorites': 'Add to Favorites',
       'removeFromFavorites': 'Remove Favorite',
       'favorited': 'Favorited',
-      'favoriteEmpty': 'No favorite notices yet. Tap the star on a notice card to collect one.',
+      'favoriteEmpty':
+          'No favorite notices yet. Tap the star on a notice card to collect one.',
       'selectionMode': 'Selection Mode',
       'selectedCount': '{value} selected',
       'batchFavorite': 'Favorite Selected',
@@ -376,7 +386,8 @@ class AppLocalizations {
       'calendarImportFailed': 'Failed to import into system calendar',
       'favoriteUpdated': 'Favorite state updated for {value}',
       'noticeDetail': 'Notice Details',
-      'noticeDetailMissing': 'Notice arguments are missing, so details cannot be shown.',
+      'noticeDetailMissing':
+          'Notice arguments are missing, so details cannot be shown.',
       'viewOriginal': 'Open Original',
       'openOriginalFailed': 'Failed to open original link',
       'importance': 'Importance {value}',
@@ -421,7 +432,8 @@ class AppLocalizations {
       'baseUrl': 'Base URL',
       'noticePath': 'Notice Path',
       'apiKey': 'API Key',
-      'apiKeyHint': 'Leave empty for direct access; when provided it is sent as X-API-Key',
+      'apiKeyHint':
+          'Leave empty for direct access; when provided it is sent as X-API-Key',
       'useMockData': 'Use Mock Data',
       'save': 'Save',
       'addedApiSourceMessage': 'Added API source {value}',
@@ -597,7 +609,8 @@ class AppLocalizations {
   String get refreshFailed => _value('refreshFailed');
   String get loadMoreFailed => _value('loadMoreFailed');
   String get dislikeNoticeTitle => _value('dislikeNoticeTitle');
-  String dislikeNoticeContent(String value) => _format('dislikeNoticeContent', value);
+  String dislikeNoticeContent(String value) =>
+      _format('dislikeNoticeContent', value);
   String get cancel => _value('cancel');
   String get confirmBlock => _value('confirmBlock');
   String genreBlocked(String value) => _format('genreBlocked', value);
@@ -649,7 +662,8 @@ class AppLocalizations {
   String get timelineRangeSaved => _value('timelineRangeSaved');
   String get calendarEmpty => _value('calendarEmpty');
   String get calendarNoEvents => _value('calendarNoEvents');
-  String calendarEventsTitle(String value) => _format('calendarEventsTitle', value);
+  String calendarEventsTitle(String value) =>
+      _format('calendarEventsTitle', value);
   String get settingsDisplayMode => _value('settingsDisplayMode');
   String get settingsDisplayModeSaved => _value('settingsDisplayModeSaved');
   String get timelinePeriod => _value('timelinePeriod');
@@ -678,6 +692,10 @@ class AppLocalizations {
   String get widgetTimelineMode => _value('widgetTimelineMode');
   String get listWidgetSize => _value('listWidgetSize');
   String get timelineWidgetSize => _value('timelineWidgetSize');
+  String get widgetConfigSaved => _value('widgetConfigSaved');
+  String get widgetSectionDesc => _value('widgetSectionDesc');
+  String get widgetEmptyHint => _value('widgetEmptyHint');
+  String get widgetAddHint => _value('widgetAddHint');
   String get addToFavorites => _value('addToFavorites');
   String get removeFromFavorites => _value('removeFromFavorites');
   String get favorited => _value('favorited');
@@ -696,13 +714,18 @@ class AppLocalizations {
   String get calendarImportDone => _value('calendarImportDone');
   String get calendarImportFailed => _value('calendarImportFailed');
   String favoriteUpdated(String value) => _format('favoriteUpdated', value);
-  String addedApiSourceMessage(String value) => _format('addedApiSourceMessage', value);
-  String updatedApiSourceMessage(String value) => _format('updatedApiSourceMessage', value);
-  String removedApiSourceMessage(String value) => _format('removedApiSourceMessage', value);
-  String switchedApiSourceMessage(String value) => _format('switchedApiSourceMessage', value);
+  String addedApiSourceMessage(String value) =>
+      _format('addedApiSourceMessage', value);
+  String updatedApiSourceMessage(String value) =>
+      _format('updatedApiSourceMessage', value);
+  String removedApiSourceMessage(String value) =>
+      _format('removedApiSourceMessage', value);
+  String switchedApiSourceMessage(String value) =>
+      _format('switchedApiSourceMessage', value);
   String setGenreWeight(String value) => _format('setGenreWeight', value);
   String get weightHint => _value('weightHint');
-  String updatedGenreWeight(String value) => _format('updatedGenreWeight', value);
+  String updatedGenreWeight(String value) =>
+      _format('updatedGenreWeight', value);
   String version(String value) => _format('version', value);
   String maintainer(String value) => _format('maintainer', value);
   String contact(String value) => _format('contact', value);
@@ -725,11 +748,13 @@ class AppLocalizations {
   }
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
-  bool isSupported(Locale locale) => <String>['zh', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['zh', 'en'].contains(locale.languageCode);
 
   @override
   Future<AppLocalizations> load(Locale locale) async {

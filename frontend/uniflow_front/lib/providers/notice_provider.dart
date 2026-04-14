@@ -1,10 +1,11 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
 import '../models/notice_model.dart';
 import '../models/student_info.dart';
 import '../models/user_preference.dart';
+import '../services/android_widget_sync_service.dart';
 import '../services/api_service.dart';
 import '../services/sort_service.dart';
 import '../services/storage_service.dart';
@@ -22,6 +23,8 @@ class NoticeProvider extends ChangeNotifier {
   final ApiService _apiService;
   final StorageService _storageService;
   final SortService _sortService;
+  final AndroidWidgetSyncService _widgetSyncService =
+      AndroidWidgetSyncService();
 
   final List<NoticeModel> _rawNotices = <NoticeModel>[];
   List<NoticeModel> _sortedNotices = <NoticeModel>[];
@@ -60,6 +63,7 @@ class NoticeProvider extends ChangeNotifier {
       ..clear()
       ..addAll(cache);
     _resort();
+    _syncWidgets();
     _initialized = true;
     notifyListeners();
 
@@ -83,6 +87,7 @@ class NoticeProvider extends ChangeNotifier {
     _preference = preference;
     _applyOperationalSettings();
     _resort();
+    _syncWidgets();
     notifyListeners();
   }
 
@@ -111,6 +116,7 @@ class NoticeProvider extends ChangeNotifier {
         ..clear()
         ..addAll(response);
       _resort();
+      _syncWidgets();
       await _storageService.saveNotices(_rawNotices);
       return true;
     } catch (error) {
@@ -121,6 +127,7 @@ class NoticeProvider extends ChangeNotifier {
           ..clear()
           ..addAll(cache);
         _resort();
+        _syncWidgets();
       }
       return false;
     } finally {
@@ -159,6 +166,7 @@ class NoticeProvider extends ChangeNotifier {
       _currentPage = nextPage;
       _hasMore = response.length >= AppConstants.pageSize;
       _resort();
+      _syncWidgets();
       await _storageService.saveNotices(_rawNotices);
       return true;
     } catch (error) {
@@ -177,6 +185,7 @@ class NoticeProvider extends ChangeNotifier {
     _hasMore = true;
     _errorMessage = null;
     await _storageService.clearNoticeCache();
+    _syncWidgets();
     notifyListeners();
   }
 
@@ -188,6 +197,7 @@ class NoticeProvider extends ChangeNotifier {
     _errorMessage = null;
     _autoRefreshTimer?.cancel();
     await _storageService.clearNoticeCache();
+    _syncWidgets();
     notifyListeners();
   }
 
@@ -202,6 +212,13 @@ class NoticeProvider extends ChangeNotifier {
   void _applyOperationalSettings() {
     _apiService.updateSource(_preference.activeApiSource);
     _configureAutoRefresh(_preference.updateFrequencyMinutes);
+  }
+
+  void _syncWidgets() {
+    _widgetSyncService.scheduleSync(
+      notices: _sortedNotices,
+      preference: _preference,
+    );
   }
 
   void _configureAutoRefresh(int minutes) {
@@ -223,6 +240,7 @@ class NoticeProvider extends ChangeNotifier {
   @override
   void dispose() {
     _autoRefreshTimer?.cancel();
+    _widgetSyncService.dispose();
     super.dispose();
   }
 }

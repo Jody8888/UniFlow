@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="uniflow_widget_list_name">UniFlow 列表小组件</string>
+    <string name="uniflow_widget_timeline_name">UniFlow 时间线小组件</string>
+    <string name="uniflow_widget_list_header">重点通知</string>
+    <string name="uniflow_widget_timeline_header">近期时间线</string>
+    <string name="uniflow_widget_waiting_sync">等待应用同步</string>
+    <string name="uniflow_widget_synced_at">同步于 %1$s</string>
+    <string name="uniflow_widget_empty">暂无通知，打开 UniFlow 刷新后将自动同步到桌面。</string>
+    <string name="uniflow_widget_open_hint">点击打开 UniFlow</string>
+    <string name="uniflow_widget_expired_time">已过期 · %1$s</string>
+</resources>

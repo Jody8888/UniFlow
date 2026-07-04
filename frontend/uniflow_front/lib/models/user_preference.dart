@@ -38,7 +38,8 @@ class UserPreference {
         sortAscendingByMode = _normalizeSortAscending(sortAscendingByMode),
         themeMode = _normalizeThemeMode(themeMode),
         themePreset = _normalizeThemePreset(themePreset),
-        customThemeColorHex = _normalizeCustomThemeColorHex(customThemeColorHex),
+        customThemeColorHex =
+            _normalizeCustomThemeColorHex(customThemeColorHex),
         customForegroundColorHex =
             _normalizeCustomThemeColorHex(customForegroundColorHex),
         customBackgroundColorHex =
@@ -81,13 +82,15 @@ class UserPreference {
       updateFrequencyMinutes: 24 * 60,
       autoRefreshValue: 1,
       autoRefreshUnit: AppRefreshUnits.day,
-      apiSources: const <ApiSourceConfig>[ApiSourceConfig(
-        id: 'fastapi-default',
-        name: '本地 FastAPI',
-        baseUrl: 'http://127.0.0.1:8888',
-        noticePath: '/api/events',
-        useMockData: false,
-      )],
+      apiSources: const <ApiSourceConfig>[
+        ApiSourceConfig(
+          id: 'fastapi-default',
+          name: '本地 FastAPI',
+          baseUrl: 'http://test.thusci.xyz:53301',
+          noticePath: '/api/events',
+          useMockData: false,
+        )
+      ],
       activeApiSourceId: 'fastapi-default',
       languageCode: AppLanguageOptions.system,
       homeSortMode: AppSortModes.personalized,
@@ -216,7 +219,9 @@ class UserPreference {
   }
 
   ApiSourceConfig get activeApiSource {
-    return apiSources.where((item) => item.id == activeApiSourceId).firstOrNull ??
+    return apiSources
+            .where((item) => item.id == activeApiSourceId)
+            .firstOrNull ??
         apiSources.first;
   }
 
@@ -246,15 +251,18 @@ class UserPreference {
     return normalized;
   }
 
-  static List<ApiSourceConfig> _normalizeSources(List<ApiSourceConfig>? sources) {
+  static List<ApiSourceConfig> _normalizeSources(
+      List<ApiSourceConfig>? sources) {
     if (sources == null || sources.isEmpty) {
-      return const <ApiSourceConfig>[ApiSourceConfig(
-        id: 'fastapi-default',
-        name: '本地 FastAPI',
-        baseUrl: 'http://127.0.0.1:8888',
-        noticePath: '/api/events',
-        useMockData: false,
-      )];
+      return const <ApiSourceConfig>[
+        ApiSourceConfig(
+          id: 'fastapi-default',
+          name: '默认FastAPI（仅校内访问）',
+          baseUrl: 'https://test.thusci.xyz:53301',
+          noticePath: '/api/events',
+          useMockData: false,
+        )
+      ];
     }
     return sources;
   }
@@ -310,13 +318,15 @@ class UserPreference {
 
   static List<ApiSourceConfig> _readSources(dynamic value) {
     if (value is! List) {
-      return const <ApiSourceConfig>[ApiSourceConfig(
-        id: 'fastapi-default',
-        name: '本地 FastAPI',
-        baseUrl: 'http://127.0.0.1:8888',
-        noticePath: '/api/events',
-        useMockData: false,
-      )];
+      return const <ApiSourceConfig>[
+        ApiSourceConfig(
+          id: 'fastapi-default',
+          name: '默认FastAPI（仅校内访问）',
+          baseUrl: 'https://test.thusci.xyz:53301',
+          noticePath: '/api/events',
+          useMockData: false,
+        )
+      ];
     }
     final items = value
         .whereType<Map>()
@@ -325,13 +335,15 @@ class UserPreference {
             ))
         .toList();
     return items.isEmpty
-        ? const <ApiSourceConfig>[ApiSourceConfig(
-            id: 'fastapi-default',
-            name: '本地 FastAPI',
-            baseUrl: 'http://127.0.0.1:8888',
-            noticePath: '/api/events',
-            useMockData: false,
-          )]
+        ? const <ApiSourceConfig>[
+            ApiSourceConfig(
+              id: 'fastapi-default',
+              name: '默认FastAPI（仅校内访问）',
+              baseUrl: 'https://test.thusci.xyz:53301',
+              noticePath: '/api/events',
+              useMockData: false,
+            )
+          ]
         : items;
   }
 
@@ -427,8 +439,7 @@ class UserPreference {
 
   static Map<String, bool> _normalizeSortAscending(Map<String, bool>? value) {
     return <String, bool>{
-      AppSortModes.personalized:
-          value?[AppSortModes.personalized] ?? false,
+      AppSortModes.personalized: value?[AppSortModes.personalized] ?? false,
       AppSortModes.latest: value?[AppSortModes.latest] ?? false,
       AppSortModes.importance: value?[AppSortModes.importance] ?? false,
       AppSortModes.deadline: value?[AppSortModes.deadline] ?? true,

@@ -122,10 +122,10 @@ def call_qwen(content: str, ori_title: str = "", link: str = "", metadata_time: 
                 "Authorization": f"Bearer {QWEN_API_KEY}",
                 "Content-Type": "application/json"
             }
-            
+            print(payload)
             response = requests.post(QWEN_API_URL, json=payload, headers=headers)
             response.raise_for_status()
-            
+            print(response)
             result_json = response.json()["choices"][0]["message"]["content"]
             # print(f"DEBUG LLM RETURN:\n{result_json}")
             

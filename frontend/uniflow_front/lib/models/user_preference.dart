@@ -86,7 +86,7 @@ class UserPreference {
         ApiSourceConfig(
           id: 'fastapi-default',
           name: '本地 FastAPI',
-          baseUrl: 'http://test.thusci.xyz:53301',
+          baseUrl: 'https://test.thusci.xyz:53301',
           noticePath: '/api/events',
           useMockData: false,
         )
